@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+
+<h3>Products</h3>
+<a href="/admin/products/add" class="btn btn-success mb-3">Add Product</a>
+
+<table class="table table-bordered">
+  <tr>
+    <th>ID</th><th>Name</th><th>Brand</th><th>Price</th><th>Stock</th><th>Category</th><th>Image</th>
+  </tr>
+  <% products.forEach(p => { %>
+  <tr>
+    <td><%= p.id %></td>
+    <td><%= p.name %></td>
+    <td><%= p.brand %></td>
+    <td><%= p.price %></td>
+    <td><%= p.stock %></td>
+    <td><%= p.category_name %></td>
+    <td>
+      <% if (p.image) { %>
+        <img src="/uploads/<%= p.image %>" width="70">
+      <% } %>
+    </td>
+  </tr>
+  <% }) %>
+</table>
+
+<%- include('../partials/footer') %>

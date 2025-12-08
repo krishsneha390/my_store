@@ -1,0 +1,19 @@
+<%- include('../partials/header') %>
+
+<h3>Categories</h3>
+<a href="/admin/categories/add" class="btn btn-success mb-3">Add Category</a>
+
+<table class="table table-bordered">
+  <tr>
+    <th>ID</th><th>Name</th><th>Slug</th>
+  </tr>
+  <% categories.forEach(c => { %>
+  <tr>
+    <td><%= c.id %></td>
+    <td><%= c.name %></td>
+    <td><%= c.slug %></td>
+  </tr>
+  <% }) %>
+</table>
+
+<%- include('../partials/footer') %>

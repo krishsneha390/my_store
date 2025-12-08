@@ -1,0 +1,23 @@
+<%- include('../partials/header') %>
+
+<h3>Orders</h3>
+
+<table class="table table-bordered mt-3">
+  <tr>
+    <th>ID</th><th>Name</th><th>Phone</th><th>Total</th><th>Date</th><th>Action</th>
+  </tr>
+  <% orders.forEach(o => { %>
+    <tr>
+      <td><%= o.id %></td>
+      <td><%= o.customer_name %></td>
+      <td><%= o.phone %></td>
+      <td>Rs. <%= o.total %></td>
+      <td><%= o.created_at %></td>
+      <td>
+        <a class="btn btn-sm btn-primary" href="/admin/orders/<%= o.id %>">View</a>
+      </td>
+    </tr>
+  <% }) %>
+</table>
+
+<%- include('../partials/footer') %>

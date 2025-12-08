@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+
+<h3>Order #<%= order.id %></h3>
+
+<p><strong>Name:</strong> <%= order.customer_name %></p>
+<p><strong>Phone:</strong> <%= order.phone %></p>
+<p><strong>Address:</strong> <%= order.address %></p>
+<p><strong>Total:</strong> Rs. <%= order.total %></p>
+
+<h5 class="mt-3">Items</h5>
+<table class="table table-bordered mt-2">
+  <tr>
+    <th>Name</th><th>Qty</th><th>Price</th><th>Total</th>
+  </tr>
+  <% items.forEach(i => { %>
+    <tr>
+      <td><%= i.name %></td>
+      <td><%= i.qty %></td>
+      <td>Rs. <%= i.price %></td>
+      <td>Rs. <%= i.price * i.qty %></td>
+    </tr>
+  <% }) %>
+</table>
+
+<%- include('../partials/footer') %>

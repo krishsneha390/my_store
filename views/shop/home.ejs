@@ -1,0 +1,73 @@
+<%- include('../partials/header') %>
+
+<div class="row">
+  <!-- Sidebar: Categories + Search -->
+  <div class="col-md-3 mb-4">
+    <h5>Categories</h5>
+    <ul class="list-group mb-4">
+      <li class="list-group-item <%= !selectedCategory ? 'active' : '' %>">
+        <a href="/" class="<%= !selectedCategory ? 'text-white' : '' %>" style="text-decoration:none;">
+          All Products
+        </a>
+      </li>
+      <% categories.forEach(c => { %>
+        <li class="list-group-item <%= selectedCategory === c.slug ? 'active' : '' %>">
+          <a href="/?category=<%= c.slug %>&q=<%= search %>"
+             class="<%= selectedCategory === c.slug ? 'text-white' : '' %>"
+             style="text-decoration:none;">
+            <%= c.name %>
+          </a>
+        </li>
+      <% }) %>
+    </ul>
+
+    <h5>Search</h5>
+    <form method="GET" action="/">
+      <% if (selectedCategory) { %>
+        <input type="hidden" name="category" value="<%= selectedCategory %>">
+      <% } %>
+      <input type="text" name="q" value="<%= search %>" class="form-control" placeholder="Search products...">
+      <button class="btn btn-primary w-100 mt-2">Search</button>
+    </form>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="col-md-9">
+    <h4 class="mb-3">
+      <% if (selectedCategory) { %>
+        Products in "<%= categories.find(c => c.slug === selectedCategory)?.name || 'Category' %>"
+      <% } else { %>
+        All Products
+      <% } %>
+      <% if (search) { %>
+        — Search: "<%= search %>"
+      <% } %>
+    </h4>
+
+    <div class="row">
+      <% if (products.length === 0) { %>
+        <p>No products found.</p>
+      <% } %>
+
+      <% products.forEach(p => { %>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+          <div class="card h-100">
+            <% if (p.image) { %>
+              <img src="/uploads/<%= p.image %>" class="card-img-top" style="height:200px;object-fit:cover">
+            <% } %>
+            <div class="card-body">
+              <h6 class="card-title"><%= p.name %></h6>
+              <% if (p.brand) { %>
+                <p class="text-muted mb-1"><%= p.brand %></p>
+              <% } %>
+              <p class="fw-bold mb-2">Rs. <%= p.price %></p>
+              <a href="/product/<%= p.id %>" class="btn btn-primary btn-sm">View Detail</a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

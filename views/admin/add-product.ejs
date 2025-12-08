@@ -1,0 +1,38 @@
+<%- include('../partials/header') %>
+
+<h3>Add Product</h3>
+
+<form action="/admin/products/add" method="POST" enctype="multipart/form-data">
+
+  <label>Product Name:</label>
+  <input type="text" name="name" class="form-control" required>
+
+  <label>Brand:</label>
+  <input type="text" name="brand" class="form-control">
+
+  <label>Price:</label>
+  <input type="number" name="price" class="form-control" required>
+
+  <label>Stock:</label>
+  <input type="number" name="stock" class="form-control">
+
+  <label>Category:</label>
+  <select name="category_id" class="form-control" required>
+    <% categories.forEach(cat => { %>
+      <option value="<%= cat.id %>"><%= cat.name %></option>
+    <% }) %>
+  </select>
+
+  <label>Image:</label>
+  <input type="file" name="image" class="form-control">
+
+  <label>Short Description:</label>
+  <textarea name="short_description" class="form-control"></textarea>
+
+  <label>Long Description:</label>
+  <textarea name="long_description" class="form-control"></textarea>
+
+  <button class="btn btn-primary mt-3">Add Product</button>
+</form>
+
+<%- include('../partials/footer') %>
