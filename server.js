@@ -1,39 +1,35 @@
-const express = require("express");
-const path = require("path");
-const session = require("express-session");
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import pool from "./config/db.js";   // PostgreSQL connection
+
+import adminRoutes from "./routes/adminRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import shopRoutes from "./routes/shopRoutes.js";
+
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
 
-// Connect DB (creates store.db + tables)
-require("./config/db");
+// ES module compatible __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ----- Session -----
-app.use(
-  session({
-    secret: "my_store_secret_key",
-    resave: false,
-    saveUninitialized: true,
-  })
-);
-
-// ----- Middlewares -----
+// Middlewares
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-
-// ----- View Engine -----
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// ----- Routes -----
-const adminRoutes = require("./routes/adminRoutes");
-const shopRoutes = require("./routes/shopRoutes");
+// Routes
+app.use("/admin", adminRoutes);
+app.use("/admin/products", productRoutes);
+app.use("/", shopRoutes);
 
-app.use("/admin", adminRoutes);  // Admin backend
-app.use("/", shopRoutes);        // Frontend shop + cart + checkout
+// Start Server
+const PORT = process.env.PORT || 3000;
 
-// ----- Start Server -----
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT} 🚀`);
 });

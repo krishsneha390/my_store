@@ -1,16 +1,23 @@
 const db = require("../config/db");
 
-db.prepare(`
-CREATE TABLE IF NOT EXISTS categories(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE
-)
-`).run();
+const Category = {
+    createTable: async () => {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS categories (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL
+            );
+        `);
+    },
 
-exports.getAll = () => {
-    return db.prepare("SELECT * FROM categories").all();
+    getAll: async () => {
+        const { rows } = await db.query("SELECT * FROM categories ORDER BY id DESC");
+        return rows;
+    },
+
+    create: async (name) => {
+        await db.query("INSERT INTO categories (name) VALUES ($1)", [name]);
+    }
 };
 
-exports.create = (name) => {
-    return db.prepare("INSERT INTO categories (name) VALUES (?)").run(name);
-};
+module.exports = Category;

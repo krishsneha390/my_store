@@ -1,170 +1,143 @@
-const express = require("express");
+import express from "express";
+import pool from "../config/db.js";
+
 const router = express.Router();
-const db = require("../config/db");
 
-// ===== HOME: Products + Category Filter + Search =====
-router.get("/", (req, res) => {
-  const selectedCategory = req.query.category || "";
-  const search = req.query.q || "";
+// ===== HOME (Products + Category Filter + Search) =====
+router.get("/", async (req, res) => {
+  try {
+    const selectedCategory = req.query.category || "";
+    const search = req.query.q || "";
 
-  db.all(`SELECT * FROM categories ORDER BY name`, [], (err, categories) => {
-    if (err) {
-      console.log(err);
-      return res.send("DB error while loading categories.");
-    }
+    const { rows: categories } = await pool.query(
+      `SELECT id, name, slug FROM categories ORDER BY name`
+    );
 
     let sql = `
       SELECT p.*, c.name AS category_name, c.slug AS category_slug
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
     `;
+
     const params = [];
     const cond = [];
 
     if (selectedCategory) {
-      cond.push("c.slug = ?");
+      cond.push("c.slug = $1");
       params.push(selectedCategory);
     }
 
     if (search) {
-      cond.push("(p.name LIKE ? OR p.brand LIKE ?)");
+      cond.push(`(p.name ILIKE $${params.length + 1} OR p.brand ILIKE $${params.length + 2})`);
       params.push(`%${search}%`, `%${search}%`);
     }
 
-    if (cond.length > 0) {
-      sql += " WHERE " + cond.join(" AND ");
-    }
+    if (cond.length) sql += " WHERE " + cond.join(" AND ");
 
     sql += " ORDER BY p.id DESC";
 
-    db.all(sql, params, (err2, products) => {
-      if (err2) {
-        console.log(err2);
-        return res.send("DB error while loading products.");
-      }
+    const { rows: products } = await pool.query(sql, params);
 
-      res.render("shop/home", {
-        categories,
-        products,
-        selectedCategory,
-        search,
-      });
-    });
-  });
+    res.render("shop/home", { categories, products, selectedCategory, search });
+
+  } catch (err) {
+    console.log(err);
+    res.send("Database error loading products.");
+  }
 });
+
 
 // ===== PRODUCT DETAIL =====
-router.get("/product/:id", (req, res) => {
-  const id = req.params.id;
+router.get("/product/:id", async (req, res) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM products WHERE id=$1", [req.params.id]);
 
-  db.get(`SELECT * FROM products WHERE id = ?`, [id], (err, product) => {
-    if (err || !product) {
-      console.log(err);
-      return res.send("Product not found.");
-    }
+    if (rows.length === 0) return res.send("Product not found.");
 
-    res.render("shop/product-detail", { product });
-  });
+    res.render("shop/product-detail", { product: rows[0] });
+
+  } catch (err) {
+    console.log(err);
+    res.send("Error fetching product.");
+  }
 });
+
 
 // ===== ADD TO CART =====
-router.get("/add-to-cart/:id", (req, res) => {
-  const id = req.params.id;
+router.get("/add-to-cart/:id", async (req, res) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM products WHERE id=$1", [req.params.id]);
+    if (rows.length === 0) return res.send("Product not found.");
 
-  db.get(`SELECT * FROM products WHERE id = ?`, [id], (err, product) => {
-    if (err || !product) {
-      console.log(err);
-      return res.send("Product not found.");
-    }
-
+    const product = rows[0];
     if (!req.session.cart) req.session.cart = [];
+
     let cart = req.session.cart;
+    let item = cart.find(p => p.id === product.id);
 
-    let existing = cart.find((p) => p.id === product.id);
-
-    if (existing) {
-      existing.qty++;
-    } else {
-      cart.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        qty: 1,
-      });
-    }
+    if (item) item.qty++;
+    else cart.push({ id: product.id, name: product.name, price: product.price, qty: 1 });
 
     res.redirect("/cart");
-  });
+
+  } catch (err) {
+    res.send("Failed to add to cart.");
+  }
 });
+
 
 // ===== CART PAGE =====
 router.get("/cart", (req, res) => {
   const cart = req.session.cart || [];
-  let total = 0;
-  cart.forEach((item) => {
-    total += item.price * item.qty;
-  });
-
+  const total = cart.reduce((t, i) => t + i.price * i.qty, 0);
   res.render("shop/cart", { cart, total });
 });
 
+
 // ===== REMOVE FROM CART =====
 router.get("/cart/remove/:id", (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  let cart = req.session.cart || [];
-  cart = cart.filter((item) => item.id !== id);
-  req.session.cart = cart;
+  req.session.cart = (req.session.cart || []).filter(i => i.id != req.params.id);
   res.redirect("/cart");
 });
 
-// ===== CHECKOUT PAGE =====
+
+// ===== CHECKOUT =====
 router.get("/checkout", (req, res) => {
   const cart = req.session.cart || [];
-  if (cart.length === 0) return res.redirect("/cart");
-
-  let total = 0;
-  cart.forEach((item) => (total += item.price * item.qty));
+  if (!cart.length) return res.redirect("/cart");
+  const total = cart.reduce((t, i) => t + i.price * i.qty, 0);
 
   res.render("shop/checkout", { cart, total });
 });
 
-// ===== HANDLE CHECKOUT =====
-router.post("/checkout", (req, res) => {
+router.post("/checkout", async (req, res) => {
   const cart = req.session.cart || [];
-  if (cart.length === 0) return res.redirect("/cart");
+  if (!cart.length) return res.redirect("/cart");
 
   const { name, phone, address } = req.body;
+  const total = cart.reduce((t, i) => t + i.price * i.qty, 0);
 
-  let total = 0;
-  cart.forEach((item) => (total += item.price * item.qty));
+  try {
+    const order = await pool.query(
+      "INSERT INTO orders(customer_name, phone, address, total) VALUES ($1,$2,$3,$4) RETURNING id",
+      [name, phone, address, total]
+    );
+    const orderId = order.rows[0].id;
 
-  db.run(
-    `INSERT INTO orders (customer_name, phone, address, total)
-     VALUES (?, ?, ?, ?)`,
-    [name, phone, address, total],
-    function (err) {
-      if (err) {
-        console.log(err);
-        return res.send("Error saving order");
-      }
-
-      const orderId = this.lastID;
-
-      const stmt = db.prepare(
-        `INSERT INTO order_items (order_id, product_id, name, price, qty)
-         VALUES (?, ?, ?, ?, ?)`
+    for (let item of cart) {
+      await pool.query(
+        "INSERT INTO order_items(order_id, product_id, name, price, qty) VALUES ($1,$2,$3,$4,$5)",
+        [orderId, item.id, item.name, item.price, item.qty]
       );
-      cart.forEach((item) => {
-        stmt.run(orderId, item.id, item.name, item.price, item.qty);
-      });
-      stmt.finalize();
-
-      req.session.cart = []; // clear cart
-
-      res.render("shop/order-success", { orderId });
     }
-  );
+
+    req.session.cart = [];
+    res.render("shop/order-success", { orderId });
+
+  } catch (err) {
+    console.log(err);
+    res.send("Order failed.");
+  }
 });
 
-module.exports = router;
+export default router;
