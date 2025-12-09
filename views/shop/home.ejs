@@ -1,16 +1,39 @@
 <%- include('../partials/header') %>
 
-<h2 style="text-align:center;">Our Products</h2>
+<h2 class="section-title">Our Products</h2>
 
-<div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center;">
-<% products.forEach(p => { %>
-<div style="border:1px solid #ddd;width:250px;padding:10px;text-align:center;">
-    <img src="<%= p.image %>" width="100%" height="200">
-    <h3><%= p.name %></h3>
-    <p>Rs <%= p.price %></p>
-    <a href="/product/<%= p.id %>">View Details</a>
+<% if (products.length === 0) { %>
+  <p style="text-align:center;margin-top:20px;">
+    No products yet. <a href="/admin/add-product">Add your first product</a>.
+  </p>
+<% } else { %>
+
+<div class="product-grid">
+  <% products.forEach(p => { %>
+    <div class="product-card">
+      <div class="product-img-wrapper">
+        <% if (p.image) { %>
+          <img src="<%= p.image %>" alt="<%= p.name %>">
+        <% } else { %>
+          <span>No Image</span>
+        <% } %>
+      </div>
+
+      <div class="product-info">
+        <div class="product-name"><%= p.name %></div>
+        <div class="product-price">Rs <%= p.price %></div>
+
+        <div class="product-actions">
+          <form action="/add-to-cart/<%= p.id %>" method="POST" style="flex:1;">
+            <button class="btn btn-primary" style="width:100%;">Add to Cart</button>
+          </form>
+          <a href="/product/<%= p.id %>" class="btn btn-outline" style="flex:1;">Details</a>
+        </div>
+      </div>
+    </div>
+  <% }) %>
 </div>
-<% }) %>
-</div>
+
+<% } %>
 
 <%- include('../partials/footer') %>

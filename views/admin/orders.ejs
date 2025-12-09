@@ -17,11 +17,11 @@
 <tr>
     <td><%= o.id %></td>
     <td><%= o.customer_name %></td>
-    <td><%= o.phone %></td>
-    <td><%= o.address %></td>
+    <td><%= o.customer_phone %></td>
+    <td><%= o.customer_address %></td>
     <td>Rs <%= o.total %></td>
-    <td><%= JSON.parse(o.items).length %> items</td>
-    <td><%= o.created_at.toDateString() %></td>
+    <td><%= (typeof o.items === "string" ? JSON.parse(o.items) : o.items).length %> items</td>
+    <td><%= new Date(o.created_at).toDateString() %></td>
 </tr>
 <% }) %>
 </table>

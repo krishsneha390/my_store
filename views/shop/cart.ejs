@@ -1,32 +1,41 @@
 <%- include('../partials/header') %>
 
-<h2>Your Cart</h2>
+<h2 class="section-title" style="text-align:left;">Your Cart</h2>
 
-<% if(cart.length === 0){ %>
-<p>No items in cart.</p>
-<a href="/"><button>Continue Shopping</button></a>
-
+<% if (cart.length === 0) { %>
+  <p>No items in cart.</p>
+  <a href="/" class="btn btn-outline" style="margin-top:10px;">Continue Shopping</a>
 <% } else { %>
-<table border="1" width="100%" cellpadding="10">
-<tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th></tr>
 
-<% cart.forEach(item => { %>
-<tr>
+<table class="cart-table">
+  <tr>
+    <th>Product</th>
+    <th>Price</th>
+    <th>Qty</th>
+    <th>Subtotal</th>
+    <th></th>
+  </tr>
+
+  <% cart.forEach(item => { %>
+  <tr>
     <td><%= item.name %></td>
     <td>Rs <%= item.price %></td>
     <td><%= item.qty %></td>
     <td>Rs <%= item.price * item.qty %></td>
     <td>
-        <a href="/cart/remove/<%= item.id %>">Remove</a>
+      <a href="/cart/remove/<%= item.id %>" class="btn btn-outline">Remove</a>
     </td>
-</tr>
-<% }) %>
+  </tr>
+  <% }) %>
 </table>
 
-<h3>Total Amount: Rs <%= total %></h3>
-
-<a href="/checkout"><button>Proceed to Checkout</button></a>
-<a href="/cart/clear"><button style="background:red;color:#fff;">Clear Cart</button></a>
+<div class="cart-summary">
+  <h3>Total: Rs <%= total %></h3>
+  <div>
+    <a href="/cart/clear" class="btn btn-outline" style="margin-right:8px;">Clear Cart</a>
+    <a href="/checkout" class="btn btn-primary">Go to Checkout</a>
+  </div>
+</div>
 
 <% } %>
 

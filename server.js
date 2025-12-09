@@ -1,60 +1,50 @@
-// ================== IMPORTS AT TOP ==================
 import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import pool from "./config/db.js";
+import session from "express-session";
 
-// Import Routes (must always be at top)
-import adminRoutes from "./routes/adminRoutes.js";
-import productRoutes from "./routes/productRoutes.js";
-import Product from "./models/productModel.js";
-// =====================================================
+import Order from "./models/orderModel.js";
+import Admin from "./models/adminModel.js";
 
-// Load env
 dotenv.config();
 
-// Fix __dirname for ES Modules
+// RUN ONLY ONCE — comment after first success
+await Order.createTable();
+await Admin.createTable();
+await Admin.seedDefault();
+// After working once, DELETE or COMMENT ABOVE to prevent re-running.
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-
-// ================== MIDDLEWARE ==================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public"))); 
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static("public/uploads"));
+
+app.use(session({
+    secret: "mySecretKey123",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 24*60*60*1000 }
+}));
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-// =================================================
 
-// ================== USE ROUTES ==================
-app.use("/", productRoutes);     // shop side routes
-app.use("/", adminRoutes);       // admin panel routes
-// =================================================
+import adminRoutes from "./routes/adminRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
-// Home Page (already handled in productRoutes.js but keeping for safety)
-app.get("/", async (req, res) => {
-    try {
-        const result = await pool.query("SELECT * FROM products ORDER BY id DESC");
-        res.render("shop/home", { products: result.rows });
-    } catch (err) {
-        console.log(err);
-        res.render("shop/home", { products: [] });
-    }
+app.use("/", productRoutes);
+app.use("/", adminRoutes);
+
+app.get("/", async (req,res) => {
+    const result = await pool.query("SELECT * FROM products");
+    res.render("shop/home", { products: result.rows });
 });
 
-// TEMP manual fallback route (OPTIONAL, safe)
-app.get("/add-product", (req, res) => {
-    res.render("admin/add-product");
-});
-
-app.post("/add-product", async (req, res) => {
-    const { name, price, category_id, image, description } = req.body;
-    await Product.create({ name, price, category_id, image, description });
-    res.redirect("/admin/products");
-});
-
-// ================== START SERVER ==================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Running at http://localhost:${PORT}`));
+app.listen(PORT, ()=> console.log(`🚀 Running http://localhost:${PORT}`));
