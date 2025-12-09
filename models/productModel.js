@@ -32,12 +32,21 @@ const Product = {
         );
     },
 
-    // 🔥 edit product function correctly placed inside object
+    // 🔥 Edit product
     update: async (id, { name, price, category_id, image, description }) => {
         await db.query(
             "UPDATE products SET name=$1, price=$2, category_id=$3, image=$4, description=$5 WHERE id=$6",
             [name, price, category_id, image, description, id]
         );
+    },
+
+    // 🔍 Search products by name
+    search: async (query) => {
+        const { rows } = await db.query(
+            "SELECT * FROM products WHERE LOWER(name) LIKE LOWER($1) ORDER BY id DESC",
+            [`%${query}%`]
+        );
+        return rows;
     }
 };
 

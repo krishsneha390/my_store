@@ -9,9 +9,18 @@ let cart = [];   // later we upgrade to session cart
 
 // ================== HOME ==================
 router.get("/", async (req, res) => {
-    const products = await Product.getAll();
-    res.render("shop/home", { products });
+    const search = req.query.search || "";
+    let products;
+
+    if (search.trim() !== "") {
+        products = await Product.search(search);
+    } else {
+        products = await Product.getAll();
+    }
+
+    res.render("home", { products, search });
 });
+;
 
 // ================== PRODUCT DETAILS ==================
 router.get("/product/:id", async (req, res) => {

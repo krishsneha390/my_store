@@ -101,6 +101,38 @@ router.post("/products/edit/:id", auth, upload.single("image"), async (req, res)
     await Product.update(req.params.id, { name, price, category_id, image, description });
     res.redirect("/admin/products");
 });
+/* -------------------- MASS EDIT PRODUCTS -------------------- */
+
+// View all products in editable table
+router.get("/products/edit-all", auth, async (req, res) => {
+    const products = await Product.getAll();
+    const categories = await Category.getAll();
+    res.render("admin/edit-all-products", { products, categories });
+});
+
+// Handle bulk update
+router.post("/products/edit-all", auth, async (req, res) => {
+    const data = req.body; // contains arrays of updated values
+
+    try {
+        for (let i in data.id) {
+            await Product.update(
+                data.id[i], {
+                    name: data.name[i],
+                    price: data.price[i],
+                    category_id: data.category_id[i],
+                    description: data.description[i],
+                    image: data.image[i]
+                }
+            );
+        }
+        res.redirect("/admin/products");
+    } catch (err) {
+        console.log(err);
+        res.send("Error updating products: " + err);
+    }
+});
+
 
 
 /* -------------------- ORDERS -------------------- */

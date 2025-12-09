@@ -1,6 +1,18 @@
 <%- include('../partials/header') %>
 
 <h2>Product List</h2>
+<%- include('../partials/header') %>
+
+<h2>Product List</h2>
+
+<!-- 🔥 Mass Edit Button -->
+<div style="text-align:right; margin-bottom:10px;">
+    <a href="/admin/products/edit-all" style="padding:8px 14px; background:black; color:white; text-decoration:none; border-radius:5px;">
+        ✏ Mass Edit Products
+    </a>
+</div>
+<!-- -------------------- -->
+
 
 <table border="1" width="100%" cellpadding="10">
 <tr>
@@ -20,11 +32,7 @@
     <% } %>
 </td>
 
-   <td>
-    <a href="/product/<%= p.id %>">View</a> |
-    <a href="/admin/products/edit/<%= p.id %>" style="color:blue;">Edit</a>
-</td>
-
+    <td><a href="/product/<%= p.id %>">View</a></td>
 </tr>
 <% }) %>
 </table>
