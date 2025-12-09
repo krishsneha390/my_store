@@ -1,115 +1,50 @@
-const express = require("express");
+import express from "express";
+import Product from "../models/productModel.js";
+import Order from "../models/orderModel.js";
+import Category from "../models/categoryModel.js";
+
 const router = express.Router();
-const db = require("../config/db");
-const multer = require("multer");
-const path = require("path");
 
-// ===== Multer for product images =====
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, "..", "public", "uploads")),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
-});
-const upload = multer({ storage });
+// -------------------- Dashboard --------------------
+router.get("/admin", (req, res) => res.render("admin/dashboard"));
 
-// ===== Dashboard =====
-router.get("/", (req, res) => {
-  res.render("admin/dashboard");
+// -------------------- CATEGORY ROUTES --------------------
+router.get("/admin/add-category", (req, res) => {
+    res.render("admin/add-category");
 });
 
-// ===== Categories =====
-router.get("/categories", (req, res) => {
-  db.all("SELECT * FROM categories ORDER BY id DESC", (err, rows) => {
-    if (err) console.log(err);
-    res.render("admin/categories", { categories: rows });
-  });
+router.post("/admin/add-category", async (req, res) => {
+    const { name } = req.body;
+    await Category.create(name);
+    res.redirect("/admin/categories");
 });
 
-router.get("/categories/add", (req, res) => {
-  res.render("admin/add-category");
+router.get("/admin/categories", async (req, res) => {
+    const categories = await Category.getAll();
+    res.render("admin/categories", { categories });
 });
 
-router.post("/categories/add", (req, res) => {
-  const name = req.body.name;
-  const slug = name.toLowerCase().trim().replace(/\s+/g, "-");
-
-  db.run(
-    "INSERT INTO categories(name, slug) VALUES (?, ?)",
-    [name, slug],
-    (err) => {
-      if (err) console.log(err);
-      res.redirect("/admin/categories");
-    }
-  );
-});
-
-// ===== Products =====
-router.get("/products", (req, res) => {
-  const sql = `
-    SELECT p.*, c.name AS category_name
-    FROM products p
-    LEFT JOIN categories c ON p.category_id = c.id
-    ORDER BY p.id DESC
-  `;
-  db.all(sql, [], (err, products) => {
-    if (err) console.log(err);
-    res.render("admin/products", { products });
-  });
-});
-
-router.get("/products/add", (req, res) => {
-  db.all("SELECT * FROM categories ORDER BY name", [], (err, categories) => {
-    if (err) console.log(err);
+// -------------------- PRODUCT ROUTES --------------------
+router.get("/admin/add-product", async (req, res) => {
+    const categories = await Category.getAll(); // show dropdown
     res.render("admin/add-product", { categories });
-  });
 });
 
-router.post("/products/add", upload.single("image"), (req, res) => {
-  const { name, brand, price, stock, short_description, long_description, category_id } = req.body;
-  const image = req.file ? req.file.filename : null;
-
-  db.run(
-    `INSERT INTO products
-     (name, brand, price, stock, image, short_description, long_description, category_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      name,
-      brand || "",
-      parseFloat(price),
-      parseInt(stock || "0", 10),
-      image,
-      short_description || "",
-      long_description || "",
-      parseInt(category_id, 10),
-    ],
-    (err) => {
-      if (err) console.log(err);
-      res.redirect("/admin/products");
-    }
-  );
+router.post("/admin/add-product", async (req, res) => {
+    const { name, price, category_id, image, description } = req.body;
+    await Product.create({ name, price, category_id, image, description });
+    res.redirect("/admin/products");
 });
 
-// ===== Orders List =====
-router.get("/orders", (req, res) => {
-  db.all(`SELECT * FROM orders ORDER BY id DESC`, [], (err, orders) => {
-    if (err) {
-      console.log(err);
-      return res.send("Error loading orders");
-    }
+router.get("/admin/products", async (req, res) => {
+    const products = await Product.getAll();
+    res.render("admin/products", { products });
+});
+
+// -------------------- ORDERS --------------------
+router.get("/admin/orders", async (req, res) => {
+    const orders = await Order.getAll();
     res.render("admin/orders", { orders });
-  });
 });
 
-// ===== Order Detail =====
-router.get("/orders/:id", (req, res) => {
-  const id = req.params.id;
-
-  db.get(`SELECT * FROM orders WHERE id = ?`, [id], (err, order) => {
-    if (!order) return res.send("Order not found");
-    db.all(`SELECT * FROM order_items WHERE order_id = ?`, [id], (err2, items) => {
-      if (err2) console.log(err2);
-      res.render("admin/order-detail", { order, items });
-    });
-  });
-});
-
-module.exports = router;
+export default router;

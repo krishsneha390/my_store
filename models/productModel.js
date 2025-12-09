@@ -1,4 +1,4 @@
-const db = require("../config/db");
+import db from "../config/db.js";
 
 const Product = {
     createTable: async () => {
@@ -7,8 +7,10 @@ const Product = {
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 price NUMERIC NOT NULL,
-                category_id INTEGER REFERENCES categories(id),
-                image TEXT
+                category_id INTEGER,
+                image TEXT,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
     },
@@ -23,12 +25,12 @@ const Product = {
         return rows[0];
     },
 
-    create: async ({ name, price, category_id, image }) => {
+    create: async ({ name, price, category_id, image, description }) => {
         await db.query(
-            "INSERT INTO products(name, price, category_id, image) VALUES ($1,$2,$3,$4)",
-            [name, price, category_id, image]
+            "INSERT INTO products(name, price, category_id, image, description) VALUES ($1,$2,$3,$4,$5)",
+            [name, price, category_id, image, description]
         );
     }
 };
 
-module.exports = Product;
+export default Product;

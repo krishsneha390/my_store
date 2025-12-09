@@ -1,39 +1,23 @@
 <%- include('../partials/header') %>
 
-<h2>Checkout</h2>
+<h2 style="text-align:center;margin:30px 0;">Checkout</h2>
 
-<h5 class="mt-3">Order Summary</h5>
-<table class="table table-bordered mt-2">
-  <tr>
-    <th>Product</th><th>Qty</th><th>Price</th><th>Total</th>
-  </tr>
-  <% cart.forEach(item => { %>
-    <tr>
-      <td><%= item.name %></td>
-      <td><%= item.qty %></td>
-      <td>Rs. <%= item.price %></td>
-      <td>Rs. <%= item.price * item.qty %></td>
-    </tr>
-  <% }) %>
-</table>
+<form action="/checkout" method="POST" style="width:400px;margin:auto;">
 
-<h4>Total: Rs. <%= total %></h4>
-
-<h5 class="mt-4">Customer Details</h5>
-<form method="POST" action="/checkout" class="mt-2">
-  <div class="mb-2">
     <label>Name</label>
-    <input class="form-control" name="name" required>
-  </div>
-  <div class="mb-2">
+    <input type="text" name="name" required style="width:100%;padding:10px;margin-bottom:10px;">
+
     <label>Phone</label>
-    <input class="form-control" name="phone" required>
-  </div>
-  <div class="mb-2">
+    <input type="text" name="phone" required style="width:100%;padding:10px;margin-bottom:10px;">
+
     <label>Address</label>
-    <textarea class="form-control" name="address" required></textarea>
-  </div>
-  <button class="btn btn-success mt-2">Place Order</button>
+    <textarea name="address" required style="width:100%;padding:10px;margin-bottom:10px;"></textarea>
+
+    <h3>Total: Rs <%= total %></h3>
+
+    <button style="background:green;color:white;padding:12px;width:100%;margin-top:10px;">
+        Place Order
+    </button>
 </form>
 
 <%- include('../partials/footer') %>

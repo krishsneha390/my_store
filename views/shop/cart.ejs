@@ -1,43 +1,32 @@
 <%- include('../partials/header') %>
 
-<h2>🛒 Your Cart</h2>
+<h2>Your Cart</h2>
 
-<% if (cart.length === 0) { %>
-  <p>No items in cart.</p>
-  <a href="/" class="btn btn-primary">Shop Now</a>
+<% if(cart.length === 0){ %>
+<p>No items in cart.</p>
+<a href="/"><button>Continue Shopping</button></a>
+
 <% } else { %>
+<table border="1" width="100%" cellpadding="10">
+<tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th></tr>
 
-<table class="table table-bordered mt-3">
-  <tr>
-    <th>Image</th>
-    <th>Name</th>
-    <th>Qty</th>
-    <th>Price</th>
-    <th>Total</th>
-    <th>Action</th>
-  </tr>
-
-  <% cart.forEach(item => { %>
-  <tr>
-    <td>
-      <% if (item.image) { %>
-        <img src="/uploads/<%= item.image %>" width="60">
-      <% } %>
-    </td>
+<% cart.forEach(item => { %>
+<tr>
     <td><%= item.name %></td>
+    <td>Rs <%= item.price %></td>
     <td><%= item.qty %></td>
-    <td>Rs. <%= item.price %></td>
-    <td>Rs. <%= item.price * item.qty %></td>
+    <td>Rs <%= item.price * item.qty %></td>
     <td>
-      <a href="/cart/remove/<%= item.id %>" class="btn btn-danger btn-sm">Remove</a>
+        <a href="/cart/remove/<%= item.id %>">Remove</a>
     </td>
-  </tr>
-  <% }) %>
+</tr>
+<% }) %>
 </table>
 
-<h3>Total: Rs. <%= total %></h3>
+<h3>Total Amount: Rs <%= total %></h3>
 
-<a href="/checkout" class="btn btn-success btn-lg mt-3">Proceed to Checkout</a>
+<a href="/checkout"><button>Proceed to Checkout</button></a>
+<a href="/cart/clear"><button style="background:red;color:#fff;">Clear Cart</button></a>
 
 <% } %>
 

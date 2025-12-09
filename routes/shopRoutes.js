@@ -1,143 +1,54 @@
-import express from "express";
-import pool from "../config/db.js";
-
+const express = require("express");
 const router = express.Router();
+const Product = require("../models/productModel");
+const Order = require("../models/orderModel");
 
-// ===== HOME (Products + Category Filter + Search) =====
+let cart = [];   // Temporary cart (later we add sessions or DB cart)
+
+// Home Page
 router.get("/", async (req, res) => {
-  try {
-    const selectedCategory = req.query.category || "";
-    const search = req.query.q || "";
-
-    const { rows: categories } = await pool.query(
-      `SELECT id, name, slug FROM categories ORDER BY name`
-    );
-
-    let sql = `
-      SELECT p.*, c.name AS category_name, c.slug AS category_slug
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-    `;
-
-    const params = [];
-    const cond = [];
-
-    if (selectedCategory) {
-      cond.push("c.slug = $1");
-      params.push(selectedCategory);
-    }
-
-    if (search) {
-      cond.push(`(p.name ILIKE $${params.length + 1} OR p.brand ILIKE $${params.length + 2})`);
-      params.push(`%${search}%`, `%${search}%`);
-    }
-
-    if (cond.length) sql += " WHERE " + cond.join(" AND ");
-
-    sql += " ORDER BY p.id DESC";
-
-    const { rows: products } = await pool.query(sql, params);
-
-    res.render("shop/home", { categories, products, selectedCategory, search });
-
-  } catch (err) {
-    console.log(err);
-    res.send("Database error loading products.");
-  }
+    const products = await Product.getAll();
+    res.render("shop/home", { products });
 });
 
-
-// ===== PRODUCT DETAIL =====
+// Product Detail View
 router.get("/product/:id", async (req, res) => {
-  try {
-    const { rows } = await pool.query("SELECT * FROM products WHERE id=$1", [req.params.id]);
-
-    if (rows.length === 0) return res.send("Product not found.");
-
-    res.render("shop/product-detail", { product: rows[0] });
-
-  } catch (err) {
-    console.log(err);
-    res.send("Error fetching product.");
-  }
+    const product = await Product.getById(req.params.id);
+    res.render("shop/product-detail", { product });
 });
 
-
-// ===== ADD TO CART =====
-router.get("/add-to-cart/:id", async (req, res) => {
-  try {
-    const { rows } = await pool.query("SELECT * FROM products WHERE id=$1", [req.params.id]);
-    if (rows.length === 0) return res.send("Product not found.");
-
-    const product = rows[0];
-    if (!req.session.cart) req.session.cart = [];
-
-    let cart = req.session.cart;
-    let item = cart.find(p => p.id === product.id);
-
-    if (item) item.qty++;
-    else cart.push({ id: product.id, name: product.name, price: product.price, qty: 1 });
-
+// Add to Cart
+router.post("/add-to-cart/:id", async (req, res) => {
+    const product = await Product.getById(req.params.id);
+    cart.push(product);
     res.redirect("/cart");
-
-  } catch (err) {
-    res.send("Failed to add to cart.");
-  }
 });
 
-
-// ===== CART PAGE =====
+// View Cart Page
 router.get("/cart", (req, res) => {
-  const cart = req.session.cart || [];
-  const total = cart.reduce((t, i) => t + i.price * i.qty, 0);
-  res.render("shop/cart", { cart, total });
+    let total = cart.reduce((sum,p)=> sum + Number(p.price),0);
+    res.render("shop/cart", { cart, total });
 });
 
-
-// ===== REMOVE FROM CART =====
-router.get("/cart/remove/:id", (req, res) => {
-  req.session.cart = (req.session.cart || []).filter(i => i.id != req.params.id);
-  res.redirect("/cart");
-});
-
-
-// ===== CHECKOUT =====
+// Checkout Page
 router.get("/checkout", (req, res) => {
-  const cart = req.session.cart || [];
-  if (!cart.length) return res.redirect("/cart");
-  const total = cart.reduce((t, i) => t + i.price * i.qty, 0);
-
-  res.render("shop/checkout", { cart, total });
+    let total = cart.reduce((sum,p)=> sum + Number(p.price),0);
+    res.render("shop/checkout", { cart, total });
 });
 
+// Place Order
 router.post("/checkout", async (req, res) => {
-  const cart = req.session.cart || [];
-  if (!cart.length) return res.redirect("/cart");
+    let total = cart.reduce((sum,p)=> sum + Number(p.price),0);
 
-  const { name, phone, address } = req.body;
-  const total = cart.reduce((t, i) => t + i.price * i.qty, 0);
+    await Order.create({ items: cart, total });
 
-  try {
-    const order = await pool.query(
-      "INSERT INTO orders(customer_name, phone, address, total) VALUES ($1,$2,$3,$4) RETURNING id",
-      [name, phone, address, total]
-    );
-    const orderId = order.rows[0].id;
-
-    for (let item of cart) {
-      await pool.query(
-        "INSERT INTO order_items(order_id, product_id, name, price, qty) VALUES ($1,$2,$3,$4,$5)",
-        [orderId, item.id, item.name, item.price, item.qty]
-      );
-    }
-
-    req.session.cart = [];
-    res.render("shop/order-success", { orderId });
-
-  } catch (err) {
-    console.log(err);
-    res.send("Order failed.");
-  }
+    cart = []; // Clear cart after order
+    res.redirect("/order-success");
 });
 
-export default router;
+// Order Success Page
+router.get("/order-success", (req, res) => {
+    res.render("shop/order-success");
+});
+
+module.exports = router;

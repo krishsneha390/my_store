@@ -1,77 +1,90 @@
-const express = require("express");
+import express from "express";
+import Product from "../models/productModel.js";
+import Order from "../models/orderModel.js";
+
 const router = express.Router();
-const multer = require("multer");
-const path = require("path");
-const db = require("../config/db");
 
-// ===== Multer: image upload config =====
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "..", "public", "uploads"));
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+// ================== CART STORAGE ==================
+let cart = [];   // <--- exists only once here
+// ==================================================
+
+// Show all products on homepage
+router.get("/", async (req, res) => {
+    const products = await Product.getAll();
+    res.render("shop/home", { products });
 });
 
-const upload = multer({ storage });
+// Product details page
+router.get("/product/:id", async (req, res) => {
+    const product = await Product.getById(req.params.id);
+    res.render("shop/product-detail", { product });
+});
 
-// ===== Product list (admin) =====
-router.get("/", (req, res) => {
-  const sql = `
-    SELECT p.*, c.name AS category_name
-    FROM products p
-    LEFT JOIN categories c ON p.category_id = c.id
-    ORDER BY p.id DESC
-  `;
-  db.all(sql, [], (err, products) => {
-    if (err) {
-      console.log(err);
-      return res.send("DB error on products");
+// Add to cart (with quantity support)
+router.post("/add-to-cart/:id", async (req, res) => {
+    const product = await Product.getById(req.params.id);
+
+    const exists = cart.find(item => item.id == product.id);
+
+    if (exists) {
+        exists.qty += 1;
+    } else {
+        cart.push({ ...product, qty: 1 });
     }
-    res.render("admin/products", { products });
-  });
+
+    res.redirect("/cart");
 });
 
-// ===== Show add-product form =====
-router.get("/add", (req, res) => {
-  db.all("SELECT * FROM categories ORDER BY name", [], (err, categories) => {
-    if (err) {
-      console.log(err);
-      return res.send("DB error on categories");
-    }
-    res.render("admin/add-product", { categories });
-  });
+// View cart
+router.get("/cart", (req, res) => {
+    let total = cart.reduce((sum, p) => sum + p.price * p.qty, 0);
+    res.render("shop/cart", { cart, total });
 });
 
-// ===== Handle add-product submit =====
-router.post("/add", upload.single("image"), (req, res) => {
-  const { name, brand, price, stock, short_description, long_description, category_id } = req.body;
-  const image = req.file ? req.file.filename : null;
-
-  const sql = `
-    INSERT INTO products
-    (name, brand, price, stock, image, short_description, long_description, category_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  const params = [
-    name,
-    brand || "",
-    parseFloat(price),
-    parseInt(stock || "0", 10),
-    image,
-    short_description || "",
-    long_description || "",
-    parseInt(category_id, 10),
-  ];
-
-  db.run(sql, params, (err) => {
-    if (err) {
-      console.log(err);
-      return res.send("DB error inserting product");
-    }
-    res.redirect("/admin/products");
-  });
+// Remove item
+router.get("/cart/remove/:id", (req, res) => {
+    cart = cart.filter(item => item.id != req.params.id);
+    res.redirect("/cart");
 });
 
-module.exports = router;
+// Clear entire cart
+router.get("/cart/clear", (req, res) => {
+    cart = [];
+    res.redirect("/cart");
+});
+
+// Checkout page
+router.get("/checkout", (req, res) => {
+    let total = cart.reduce((sum, p) => sum + p.price * p.qty, 0);
+    res.render("shop/checkout", { cart, total });
+});
+
+// Submit order
+router.post("/checkout", async (req, res) => {
+    const { name, phone, address } = req.body;
+    let total = cart.reduce((sum, p) => sum + p.price * p.qty, 0);
+
+    await Order.create({ 
+        name, phone, address, 
+        items: cart, 
+        total 
+    });
+
+    cart = []; // empty cart after order
+    res.redirect("/order-success");
+});
+
+
+// Place order
+router.post("/checkout", async (req, res) => {
+    let total = cart.reduce((sum, p) => sum + (p.price * p.qty), 0);
+
+    await Order.create({ items: cart, total });
+
+    cart = []; // Clear cart after order
+    res.redirect("/order-success");
+});
+
+router.get("/order-success", (req, res) => res.render("shop/order-success"));
+
+export default router;

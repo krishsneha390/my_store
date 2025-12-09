@@ -1,38 +1,29 @@
 <%- include('../partials/header') %>
 
-<h3>Add Product</h3>
+<h2>Add Product</h2>
 
-<form action="/admin/products/add" method="POST" enctype="multipart/form-data">
+<form action="/admin/add-product" method="POST" style="width:400px;margin:auto">
 
-  <label>Product Name:</label>
-  <input type="text" name="name" class="form-control" required>
+    <label>Product Name</label>
+    <input type="text" name="name" required>
 
-  <label>Brand:</label>
-  <input type="text" name="brand" class="form-control">
+    <label>Price</label>
+    <input type="number" name="price" required>
 
-  <label>Price:</label>
-  <input type="number" name="price" class="form-control" required>
+    <label>Category</label>
+    <select name="category_id" required>
+        <% categories.forEach(c => { %>
+            <option value="<%= c.id %>"><%= c.name %></option>
+        <% }) %>
+    </select>
 
-  <label>Stock:</label>
-  <input type="number" name="stock" class="form-control">
+    <label>Image URL</label>
+    <input type="text" name="image" required>
 
-  <label>Category:</label>
-  <select name="category_id" class="form-control" required>
-    <% categories.forEach(cat => { %>
-      <option value="<%= cat.id %>"><%= cat.name %></option>
-    <% }) %>
-  </select>
+    <label>Description</label>
+    <textarea name="description"></textarea>
 
-  <label>Image:</label>
-  <input type="file" name="image" class="form-control">
-
-  <label>Short Description:</label>
-  <textarea name="short_description" class="form-control"></textarea>
-
-  <label>Long Description:</label>
-  <textarea name="long_description" class="form-control"></textarea>
-
-  <button class="btn btn-primary mt-3">Add Product</button>
+    <button type="submit">Add Product</button>
 </form>
 
 <%- include('../partials/footer') %>

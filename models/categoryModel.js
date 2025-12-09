@@ -1,23 +1,14 @@
-const db = require("../config/db");
+import db from "../config/db.js";
 
 const Category = {
-    createTable: async () => {
-        await db.query(`
-            CREATE TABLE IF NOT EXISTS categories (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL
-            );
-        `);
+    create: async (name) => {
+        await db.query("INSERT INTO categories(name) VALUES($1)", [name]);
     },
 
     getAll: async () => {
         const { rows } = await db.query("SELECT * FROM categories ORDER BY id DESC");
         return rows;
-    },
-
-    create: async (name) => {
-        await db.query("INSERT INTO categories (name) VALUES ($1)", [name]);
     }
 };
 
-module.exports = Category;
+export default Category;
