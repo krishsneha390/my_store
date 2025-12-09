@@ -1,0 +1,22 @@
+<%- include('../partials/header') %>
+
+<h2>Bulk Product Upload</h2>
+
+<form action="/admin/bulk-upload" method="POST" enctype="multipart/form-data" style="width:400px;margin:auto">
+  
+    <label>Select Excel File (.xlsx)</label>
+    <input type="file" name="file" accept=".xlsx" required>
+
+    <button style="margin-top:15px;width:100%;padding:10px;background:green;color:white;">
+        Upload Products
+    </button>
+</form>
+
+<p style="text-align:center;margin-top:20px;">Format Required:</p>
+
+<table border="1" width="60%" align="center" cellpadding="8">
+<tr><th>Product Name</th><th>Price</th><th>Category ID</th><th>Description</th><th>Image</th></tr>
+<tr><td>Watch X1</td><td>250</td><td>1</td><td>Nice watch</td><td>img.jpg</td></tr>
+</table>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,36 @@
+<%- include("../partials/header") %>
+
+<h2>Edit Product</h2>
+
+<form action="/admin/products/edit/<%= product.id %>" method="POST" enctype="multipart/form-data">
+
+    <input type="hidden" name="oldImage" value="<%= product.image %>">
+
+    <label>Name</label>
+    <input type="text" name="name" value="<%= product.name %>" required>
+
+    <label>Price</label>
+    <input type="number" name="price" value="<%= product.price %>" required>
+
+    <label>Description</label>
+    <textarea name="description"><%= product.description %></textarea>
+
+    <label>Category</label>
+    <select name="category_id">
+        <% categories.forEach(c => { %>
+            <option value="<%= c.id %>" <%= c.id === product.category_id ? "selected" : "" %> >
+                <%= c.name %>
+            </option>
+        <% }) %>
+    </select>
+
+    <label>Current Image</label><br>
+    <img src="/uploads/<%= product.image %>" width="120"><br><br>
+
+    <label>New Image (optional)</label>
+    <input type="file" name="image">
+
+    <button type="submit">Update Product</button>
+</form>
+
+<%- include("../partials/footer") %>

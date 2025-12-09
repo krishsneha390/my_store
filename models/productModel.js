@@ -30,6 +30,14 @@ const Product = {
             "INSERT INTO products(name, price, category_id, image, description) VALUES ($1,$2,$3,$4,$5)",
             [name, price, category_id, image, description]
         );
+    },
+
+    // 🔥 edit product function correctly placed inside object
+    update: async (id, { name, price, category_id, image, description }) => {
+        await db.query(
+            "UPDATE products SET name=$1, price=$2, category_id=$3, image=$4, description=$5 WHERE id=$6",
+            [name, price, category_id, image, description, id]
+        );
     }
 };
 

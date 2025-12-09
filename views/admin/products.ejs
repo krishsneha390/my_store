@@ -20,7 +20,11 @@
     <% } %>
 </td>
 
-    <td><a href="/product/<%= p.id %>">View</a></td>
+   <td>
+    <a href="/product/<%= p.id %>">View</a> |
+    <a href="/admin/products/edit/<%= p.id %>" style="color:blue;">Edit</a>
+</td>
+
 </tr>
 <% }) %>
 </table>
