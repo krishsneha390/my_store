@@ -41,15 +41,23 @@
             <% } %>
         </td>
 
-        <td>
+                <td>
+
+            <!-- 🟡 Edit Product -->
+            <a href="/admin/products/edit/<%= p.id %>" 
+               style="padding:5px 10px; background:#FFC107; color:black; text-decoration:none; border-radius:4px; margin-right:5px;">
+               ✏ Edit
+            </a>
+
+            <!-- 🔵 View Product -->
             <a href="/product/<%= p.id %>" 
                style="padding:5px 10px; background:#007bff; color:white; text-decoration:none; border-radius:4px;">
                View
             </a>
+
         </td>
     </tr>
-    <% }) %>
+    <% }) %>   <!-- 🔥 CLOSING LOOP HERE -->
 </table>
-
 
 <%- include('../partials/footer') %>

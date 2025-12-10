@@ -1,27 +1,67 @@
 <%- include('../partials/header') %>
 
-<h2 style="text-align:center;margin:30px 0;">Checkout</h2>
+<h2 style="text-align:center;margin-top:30px;">Checkout</h2>
 
 <div style="max-width:500px;margin:auto;padding:20px;">
-    
-    <form action="/checkout" method="POST">
 
-        <label>Name</label>
-        <input type="text" name="customer_name" required style="width:100%;padding:8px;margin:5px 0;">
+<form action="/checkout/calculate" method="POST" id="checkoutForm">
 
-        <label>Phone</label>
-        <input type="text" name="customer_phone" required style="width:100%;padding:8px;margin:5px 0;">
+    <label>Name</label>
+    <input type="text" name="customer_name" required style="padding:8px;width:100%">
 
-        <label>Address</label>
-        <textarea name="customer_address" required style="width:100%;padding:8px;margin:5px 0;"></textarea>
+    <label>Phone</label>
+    <input type="text" name="customer_phone" required style="padding:8px;width:100%">
 
-        <h3>Total: Rs <%= total %></h3>
+    <label>Delivery Address (If GPS Off)</label>
+    <textarea name="customer_address" style="padding:8px;width:100%"></textarea>
 
-        <button style="background:green;color:white;padding:10px 18px;border:none;border-radius:5px;margin-top:10px;cursor:pointer;">
-            Confirm Order
+    <label>Delivery Method</label>
+    <select name="delivery_method" required style="padding:8px;width:100%">
+        <option value="pathao">Pathao</option>
+        <option value="indrive">InDrive</option>
+        <option value="yango">Yango</option>
+    </select>
+
+    <label>Location Source</label>
+    <select name="location_source" id="locationSource" style="padding:8px;width:100%">
+        <option value="gps" selected>📍 GPS (Recommended)</option>
+        <option value="address">Manual Address</option>
+    </select>
+
+    <div id="gpsBox" style="margin-top:10px;padding:10px;background:#e7f3ff;border-radius:6px;">
+        <b>Status:</b> <span id="gpsStatus" style="color:orange;">Waiting...</span><br>
+        <button type="button" id="getLocationBtn"
+            style="margin-top:8px;background:#007bff;color:white;padding:6px 12px;border:none;border-radius:4px;">
+            Detect My Location
         </button>
-    </form>
+    </div>
 
+    <input type="hidden" name="lat" id="lat">
+    <input type="hidden" name="lng" id="lng">
+
+    <h3>Total: Rs <%= total %></h3>
+
+    <button type="submit" style="background:black;color:white;padding:10px;border:none;border-radius:5px;width:100%;margin-top:10px;">
+        Continue
+    </button>
+</form>
 </div>
+
+<script>
+document.getElementById("getLocationBtn").onclick = ()=>{
+    navigator.geolocation.getCurrentPosition(pos=>{
+        lat.value = pos.coords.latitude;
+        lng.value = pos.coords.longitude;
+        gpsStatus.innerHTML="<span style='color:green;'>Captured ✔</span>";
+    },()=> alert("Enable GPS"));
+};
+
+checkoutForm.addEventListener("submit",(e)=>{
+    if(locationSource.value=="gps" && (!lat.value || !lng.value)){
+        e.preventDefault();
+        alert("Click Detect My Location first!");
+    }
+})
+</script>
 
 <%- include('../partials/footer') %>

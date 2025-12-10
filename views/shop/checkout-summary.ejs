@@ -1,0 +1,44 @@
+<%- include('../partials/header') %>
+
+<h2 style="text-align:center;margin-top:30px;">Order Summary</h2>
+
+<div style="max-width:500px;margin:auto;padding:20px;font-size:17px;background:#f9f9f9;border-radius:8px;">
+
+<p><b>Name:</b> <%= data.customer_name %></p>
+<p><b>Phone:</b> <%= data.customer_phone %></p>
+<p><b>Address:</b> <%= data.customer_address || "GPS Used" %></p>
+
+<p><b>Distance:</b> <%= data.distance %> km</p>
+<p><b>Delivery Charge:</b> Rs <%= data.delivery_fee %></p>
+
+<hr>
+
+<p><b>Items Total:</b> Rs <%= (data.grand_total - data.delivery_fee) %></p>
+
+<h2 style="margin-top:10px;">Total Payable: Rs <%= data.grand_total %></h2>
+
+<br>
+
+<form action="/checkout/place-order" method="POST">
+
+    <!-- 🔥 FULL Hidden backups (important) -->
+    <input type="hidden" name="customer_name" value="<%= data.customer_name %>">
+    <input type="hidden" name="customer_phone" value="<%= data.customer_phone %>">
+    <input type="hidden" name="customer_address" value="<%= data.customer_address %>">
+    <input type="hidden" name="delivery_method" value="<%= data.delivery_method %>">
+
+    <input type="hidden" name="lat" value="<%= data.userLat %>">
+    <input type="hidden" name="lng" value="<%= data.userLng %>">
+    <input type="hidden" name="distance" value="<%= data.distance %>">
+    <input type="hidden" name="fee" value="<%= data.delivery_fee %>">
+    <input type="hidden" name="total" value="<%= data.grand_total %>">
+
+    <button type="submit"
+        style="background:green;color:white;padding:12px;width:100%;border:none;border-radius:6px;font-size:18px;">
+        Confirm Order
+    </button>
+</form>
+
+</div>
+
+<%- include('../partials/footer') %>

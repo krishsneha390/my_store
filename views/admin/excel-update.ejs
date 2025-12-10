@@ -1,0 +1,12 @@
+<%- include('../partials/header') %>
+
+<h2 style="margin:20px">Bulk Excel Update</h2>
+
+<form action="/admin/excel-update" method="POST" enctype="multipart/form-data" style="margin:20px;">
+    <input type="file" name="excelFile" required>
+    <button style="padding:8px 15px;background:green;color:#fff;border:none;border-radius:4px;">
+        Upload & Update Products
+    </button>
+</form>
+
+<%- include('../partials/footer') %>

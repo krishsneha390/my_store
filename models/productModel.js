@@ -47,7 +47,6 @@ const Product = {
         return rows;
     },
 
-    // PAGINATION FIXED VERSION 🔥
     getPaginated: async (limit, offset, search) => {
         let params = [];
         let where = "";
@@ -65,10 +64,8 @@ const Product = {
         `;
 
         params.push(limit, offset);
-
         const products = await db.query(queryProducts, params);
 
-        // count separately
         const countResult = await db.query(
             `SELECT COUNT(*) FROM products ${where}`,
             search ? [`%${search}%`] : []
@@ -78,6 +75,21 @@ const Product = {
             products: products.rows,
             total: parseInt(countResult.rows[0].count)
         };
+    },
+
+    /** 🔥 UPDATE VIA EXCEL (Name → Name, Price, Image) */
+    updateByName: async (oldName, data) => {
+        if (!data.name && !data.price && !data.image) return; // skip blank rows
+
+        await db.query(
+            `UPDATE products 
+             SET 
+                name = COALESCE($1, name),
+                price = COALESCE($2, price),
+                image = COALESCE($3, image)
+             WHERE name ILIKE $4`,
+            [data.name || null, data.price || null, data.image || null, `%${oldName}%`]
+        );
     }
 };
 

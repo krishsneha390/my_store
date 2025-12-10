@@ -9,6 +9,10 @@ const Order = {
                 customer_name VARCHAR(255),
                 customer_phone VARCHAR(20),
                 customer_address TEXT,
+                delivery_lat DOUBLE PRECISION,
+                delivery_lng DOUBLE PRECISION,
+                delivery_distance DOUBLE PRECISION,
+                delivery_fee INTEGER,
                 items JSON NOT NULL,
                 total NUMERIC NOT NULL,
                 payment_method VARCHAR(20) DEFAULT 'COD',
@@ -18,15 +22,35 @@ const Order = {
         `);
     },
 
-    create: async ({ customer_name, customer_phone, customer_address, items, total, payment_method = "COD", status = "Pending" }) => {
+    create: async ({
+        customer_name,
+        customer_phone,
+        customer_address,
+        items,
+        total,
+        delivery_lat,
+        delivery_lng,
+        delivery_distance,
+        delivery_fee,
+        payment_method = "COD",
+        status = "Pending"
+    }) => {
         await pool.query(
-            `INSERT INTO orders(customer_name, customer_phone, customer_address, items, total, payment_method, status)
-             VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+            `INSERT INTO orders(
+                customer_name, customer_phone, customer_address,
+                delivery_lat, delivery_lng, delivery_distance, delivery_fee,
+                items, total, payment_method, status
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
             [
                 customer_name,
                 customer_phone,
                 customer_address,
-                JSON.stringify(items),   // <-- required fix for JSON data
+                delivery_lat,
+                delivery_lng,
+                delivery_distance,
+                delivery_fee,
+                JSON.stringify(items),
                 total,
                 payment_method,
                 status
@@ -39,13 +63,12 @@ const Order = {
         return rows;
     },
 
-    updateStatus: async (id, status) => {
-        await pool.query("UPDATE orders SET status=$1 WHERE id=$2", [status, id]);
+    updateStatus: async (id,status)=>{
+        await pool.query("UPDATE orders SET status=$1 WHERE id=$2",[status,id]);
     },
 
-    // MUST ADD COMMA ABOVE BEFORE THIS ↓
-    delete: async (id) => {
-        await pool.query("DELETE FROM orders WHERE id=$1", [id]);
+    delete: async (id)=>{
+        await pool.query("DELETE FROM orders WHERE id=$1",[id]);
     }
 
 };

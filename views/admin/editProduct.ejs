@@ -1,36 +1,53 @@
-<%- include("../partials/header") %>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Product</title>
+<style>
+form { width:400px; margin:auto; display:flex; flex-direction:column; gap:8px; }
+input, select, textarea { padding:8px; font-size:16px; }
+img { width:100px; margin:10px 0; }
+button { padding:10px; font-size:16px; background:#007bff; color:white; border:none; cursor:pointer; }
+button:hover { background:#0056d2; }
+</style>
+</head>
+<body>
 
-<h2>Edit Product</h2>
+<h2 style="text-align:center">Edit Product</h2>
 
 <form action="/admin/products/edit/<%= product.id %>" method="POST" enctype="multipart/form-data">
 
-    <input type="hidden" name="oldImage" value="<%= product.image %>">
+  <label>Name:</label>
+  <input type="text" name="name" value="<%= product.name %>" required>
 
-    <label>Name</label>
-    <input type="text" name="name" value="<%= product.name %>" required>
+  <label>Price:</label>
+  <input type="number" name="price" value="<%= product.price %>" required>
 
-    <label>Price</label>
-    <input type="number" name="price" value="<%= product.price %>" required>
+  <label>Category:</label>
+  <select name="category_id">
+    <% categories.forEach(c => { %>
+      <option value="<%= c.id %>" <%= c.id == product.category_id ? "selected" : "" %>>
+        <%= c.name %>
+      </option>
+    <% }) %>
+  </select>
 
-    <label>Description</label>
-    <textarea name="description"><%= product.description %></textarea>
+  <label>Description:</label>
+  <textarea name="description"><%= product.description %></textarea>
 
-    <label>Category</label>
-    <select name="category_id">
-        <% categories.forEach(c => { %>
-            <option value="<%= c.id %>" <%= c.id === product.category_id ? "selected" : "" %> >
-                <%= c.name %>
-            </option>
-        <% }) %>
-    </select>
+  <label>Current Image:</label>
+  <img src="<%= product.image %>" alt="Product image">
 
-    <label>Current Image</label><br>
-    <img src="/uploads/<%= product.image %>" width="120"><br><br>
+  <input type="hidden" name="oldImage" value="<%= product.image %>">
 
-    <label>New Image (optional)</label>
-    <input type="file" name="image">
+  <label>Upload New Image (optional):</label>
+  <input type="file" name="image">
 
-    <button type="submit">Update Product</button>
+  <button type="submit">Update Product</button>
 </form>
 
-<%- include("../partials/footer") %>
+<div style="text-align:center; margin-top:20px;">
+<a href="/admin/products">⬅ Back to Products</a>
+</div>
+
+</body>
+</html>
