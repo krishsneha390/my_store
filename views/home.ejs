@@ -1,7 +1,7 @@
 <%- include('partials/header') %>
 
-
 <h2 class="section-title">Our Products</h2>
+
 <!-- 🔍 Search Bar -->
 <form action="/" method="GET" style="text-align:center; margin:20px 0;">
   <input 
@@ -19,19 +19,19 @@
   </button>
 </form>
 
-
 <% if (products.length === 0) { %>
   <p style="text-align:center;margin-top:20px;">
-    No products yet. <a href="/admin/add-product">Add your first product</a>.
+    No products found. <a href="/admin/add-product">Add your first product</a>.
   </p>
 <% } else { %>
 
+<!-- Product Grid -->
 <div class="product-grid">
   <% products.forEach(p => { %>
     <div class="product-card">
       <div class="product-img-wrapper">
         <% if (p.image) { %>
-          <img src="<%= p.image %>" alt="<%= p.name %>">
+          <img src="<%= p.image %>" alt="<%= p.name %>" style="width:100%; object-fit:cover;">
         <% } else { %>
           <span>No Image</span>
         <% } %>
@@ -54,5 +54,21 @@
 
 <% } %>
 
-<%- include('partials/footer') %>
+<!-- 📄 Pagination -->
+<div style="text-align:center;margin-top:20px;">
 
+  <% if(page > 1){ %>
+    <a href="/?page=<%= page-1 %>&search=<%= search || '' %>" class="btn">⬅ Prev</a>
+  <% } %>
+
+  <span style="margin:0 15px; font-size:18px;">
+    Page <%= page %> of <%= totalPages %>
+  </span>
+
+  <% if(page < totalPages){ %>
+    <a href="/?page=<%= page+1 %>&search=<%= search || '' %>" class="btn">Next ➡</a>
+  <% } %>
+
+</div>
+
+<%- include('partials/footer') %>

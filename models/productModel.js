@@ -32,7 +32,6 @@ const Product = {
         );
     },
 
-    // 🔥 Edit product
     update: async (id, { name, price, category_id, image, description }) => {
         await db.query(
             "UPDATE products SET name=$1, price=$2, category_id=$3, image=$4, description=$5 WHERE id=$6",
@@ -40,13 +39,45 @@ const Product = {
         );
     },
 
-    // 🔍 Search products by name
     search: async (query) => {
         const { rows } = await db.query(
             "SELECT * FROM products WHERE LOWER(name) LIKE LOWER($1) ORDER BY id DESC",
             [`%${query}%`]
         );
         return rows;
+    },
+
+    // PAGINATION FIXED VERSION 🔥
+    getPaginated: async (limit, offset, search) => {
+        let params = [];
+        let where = "";
+
+        if (search) {
+            params.push(`%${search}%`);
+            where = `WHERE LOWER(name) LIKE LOWER($1)`;
+        }
+
+        const queryProducts = `
+            SELECT * FROM products 
+            ${where}
+            ORDER BY id DESC 
+            LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+        `;
+
+        params.push(limit, offset);
+
+        const products = await db.query(queryProducts, params);
+
+        // count separately
+        const countResult = await db.query(
+            `SELECT COUNT(*) FROM products ${where}`,
+            search ? [`%${search}%`] : []
+        );
+
+        return {
+            products: products.rows,
+            total: parseInt(countResult.rows[0].count)
+        };
     }
 };
 

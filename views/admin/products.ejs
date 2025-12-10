@@ -1,40 +1,55 @@
 <%- include('../partials/header') %>
 
-<h2>Product List</h2>
-<%- include('../partials/header') %>
+<h2 style="margin-bottom:15px;">Product List</h2>
 
-<h2>Product List</h2>
-
-<!-- 🔥 Mass Edit Button -->
-<div style="text-align:right; margin-bottom:10px;">
-    <a href="/admin/products/edit-all" style="padding:8px 14px; background:black; color:white; text-decoration:none; border-radius:5px;">
-        ✏ Mass Edit Products
+<!-- 🔥 Mass Edit Shortcut Button -->
+<div style="text-align:right; margin-bottom:15px;">
+    <a href="/admin/mass-edit" 
+       style="padding:10px 18px; background:black; color:white; border-radius:5px; text-decoration:none; font-size:16px;">
+       ✏ Mass Edit Products
     </a>
 </div>
-<!-- -------------------- -->
 
+<!-- Products Table -->
+<!-- Products Table -->
+<table border="1" width="100%" cellpadding="10" style="border-collapse:collapse; font-size:15px;">
+    <tr style="background:#f2f2f2;">
+        <th>ID</th>
+        <th style="width:350px;">Name</th> <!-- WIDER column -->
+        <th>Price</th>
+        <th>Image</th>
+        <th>Actions</th>
+    </tr>
 
-<table border="1" width="100%" cellpadding="10">
-<tr>
-    <th>ID</th><th>Name</th><th>Price</th><th>Image</th><th>Actions</th>
-</tr>
+    <% products.forEach(p => { %>
+    <tr>
+        <td><%= p.id %></td>
 
-<% products.forEach(p => { %>
-<tr>
-    <td><%= p.id %></td>
-    <td><%= p.name %></td>
-    <td>Rs <%= p.price %></td>
-    <td>
-    <% if(p.image) { %>
-        <img src="<%= p.image.startsWith('/uploads') ? p.image : '/uploads/' + p.image %>" width="70" style="border-radius:5px;">
-    <% } else { %>
-        No Image
-    <% } %>
-</td>
+        <!-- 🌟 MULTILINE product name -->
+        <td style="white-space:normal; word-wrap:break-word; line-height:20px;">
+            <%= p.name %>
+        </td>
 
-    <td><a href="/product/<%= p.id %>">View</a></td>
-</tr>
-<% }) %>
+        <td>Rs <%= p.price %></td>
+
+        <td>
+            <% if(p.image) { %>
+                <img src="<%= p.image.startsWith('/uploads') ? p.image : '/uploads/' + p.image %>" 
+                     width="70" style="border-radius:5px;">
+            <% } else { %>
+                No Image
+            <% } %>
+        </td>
+
+        <td>
+            <a href="/product/<%= p.id %>" 
+               style="padding:5px 10px; background:#007bff; color:white; text-decoration:none; border-radius:4px;">
+               View
+            </a>
+        </td>
+    </tr>
+    <% }) %>
 </table>
+
 
 <%- include('../partials/footer') %>

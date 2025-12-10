@@ -2,7 +2,8 @@
 
 <h2 style="margin-bottom:15px; font-size:24px; font-weight:bold;">✏ Mass Edit Products</h2>
 
-<form action="/admin/products/edit-all" method="POST">
+<form action="/admin/mass-edit/update" method="POST">
+
 
 <table border="1" cellpadding="8" width="100%"
 style="border-collapse:collapse; font-size:15px; text-align:left;">
@@ -25,11 +26,11 @@ style="border-collapse:collapse; font-size:15px; text-align:left;">
         <input type="hidden" name="id[]" value="<%= p.id %>">
     </td>
 
-    <!-- Name (WRAPS & Bigger Box) -->
+    <!-- Name (Multi-line & bigger) -->
     <td>
         <textarea name="name[]" 
         style="width:100%; padding:6px; height:60px; resize:vertical; 
-               white-space:normal; word-wrap:break-word; font-size:14px;"><%= p.name %></textarea>
+               word-wrap:break-word; font-size:14px;"><%= p.name %></textarea>
     </td>
 
     <!-- Price -->
@@ -56,9 +57,9 @@ style="border-collapse:collapse; font-size:15px; text-align:left;">
         style="width:100%; height:70px; padding:6px; font-size:14px; resize:vertical;"><%= p.description %></textarea>
     </td>
 
-    <!-- Image preview + URL -->
+    <!-- Image preview + URL editable -->
     <td>
-        <img src="<%= p.image.includes('uploads')?p.image:'/uploads/'+p.image %>" 
+        <img src="<%= p.image.includes('/uploads') ? p.image : '/uploads/' + p.image %>" 
              width="65" style="display:block;margin-bottom:5px;border-radius:5px;">
 
         <input type="text" name="image[]"
@@ -73,7 +74,30 @@ style="border-collapse:collapse; font-size:15px; text-align:left;">
 
 <br>
 
-<!-- Submit Button -->
+<!-- Pagination Buttons -->
+<div style="text-align:center;margin-bottom:20px;">
+
+    <% if(page > 1){ %>
+        <a href="/admin/mass-edit?page=<%= page-1 %>"
+        style="padding:8px 16px;background:#222;color:white;border-radius:5px;text-decoration:none;margin-right:8px;">
+            ⬅ Previous
+        </a>
+    <% } %>
+
+    <span style="font-size:18px;margin:0 12px;">
+        Page <%= page %> of <%= totalPages %>
+    </span>
+
+    <% if(page < totalPages){ %>
+        <a href="/admin/mass-edit?page=<%= page+1 %>"
+        style="padding:8px 16px;background:#222;color:white;border-radius:5px;text-decoration:none;margin-left:8px;">
+            Next ➡
+        </a>
+    <% } %>
+
+</div>
+
+<!-- Save Button -->
 <div style="text-align:center;">
     <button type="submit"
     style="padding:12px 30px; background:green; color:white; font-size:18px; 
@@ -83,5 +107,7 @@ style="border-collapse:collapse; font-size:15px; text-align:left;">
 </div>
 
 </form>
+
+<br><br>
 
 <%- include('../partials/footer') %>

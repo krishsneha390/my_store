@@ -12,13 +12,28 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+/* ----------------------------------------------------------
+   FIX: Increase request limit to avoid "Payload Too Large"
+----------------------------------------------------------- */
+app.use(express.json({ limit: "200mb" }));
+app.use(express.urlencoded({
+    extended: true,
+    limit: "200mb",
+    parameterLimit: 100000,   // <-- FIX for too many form inputs
+}));
+
+
+/* If using multer anywhere (just for future reference)
+   you can set file upload limit there likewise */
+// import multer from "multer";
+// const upload = multer({ limits: { fileSize: 50 * 1024 * 1024 } });
+
+/* ---------------------------------------------------------- */
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use(session({
-    secret: "your-secret-key",
+    secret: "your-secret-key",       // change to strong key later
     resave: false,
     saveUninitialized: false
 }));
