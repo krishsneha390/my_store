@@ -136,5 +136,11 @@ router.post("/mass-edit/update", auth, async (req,res)=> {
 router.get("/orders", auth, async (req, res) => {
     res.render("admin/orders", { orders: await Order.getAll() });
 });
+// DELETE ORDER
+router.post("/orders/delete/:id", async (req, res) => {
+    await Order.delete(req.params.id);
+    res.redirect("/admin/orders");
+});
+
 
 export default router;

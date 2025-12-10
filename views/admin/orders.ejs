@@ -2,28 +2,42 @@
 
 <h2 style="text-align:center;margin:30px 0;">Orders</h2>
 
-<table border="1" width="90%" style="margin:auto" cellpadding="10">
-<tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Phone</th>
-    <th>Address</th>
-    <th>Total</th>
-    <th>Items</th>
-    <th>Date</th>
-</tr>
+<table border="1" width="90%" style="margin:auto;border-collapse:collapse;">
+    <tr style="background:#eee;font-weight:bold;">
+        <td>ID</td>
+        <td>Name</td>
+        <td>Phone</td>
+        <td>Address</td>
+        <td>Total</td>
+        <td>Items</td>
+        <td>Date</td>
+        <td>Action</td>
+    </tr>
 
-<% orders.forEach(o => { %>
-<tr>
-    <td><%= o.id %></td>
-    <td><%= o.customer_name %></td>
-    <td><%= o.customer_phone %></td>
-    <td><%= o.customer_address %></td>
-    <td>Rs <%= o.total %></td>
-    <td><%= (typeof o.items === "string" ? JSON.parse(o.items) : o.items).length %> items</td>
-    <td><%= new Date(o.created_at).toDateString() %></td>
-</tr>
-<% }) %>
+    <% orders.forEach(order => { %>
+    <tr>
+        <td><%= order.id %></td>
+        <td><%= order.customer_name %></td>
+        <td><%= order.customer_phone %></td>
+        <td><%= order.customer_address %></td>
+        <td>Rs <%= order.total %></td>
+
+        <!-- FIXED ITEM COUNT -->
+        <td>
+            <%= (typeof order.items === "string" ? JSON.parse(order.items) : order.items).length %> items
+        </td>
+
+        <td><%= new Date(order.created_at).toDateString() %></td>
+
+        <td>
+            <form action="/admin/orders/delete/<%= order.id %>" method="POST" style="display:inline;">
+                <button style="background:red;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">
+                    Delete
+                </button>
+            </form>
+        </td>
+    </tr>
+    <% }) %>
 </table>
 
 <%- include('../partials/footer') %>

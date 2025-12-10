@@ -1,32 +1,26 @@
 <%- include('../partials/header') %>
 
-<h2 class="section-title" style="text-align:left;">Checkout</h2>
+<h2 style="text-align:center;margin:30px 0;">Checkout</h2>
 
-<div class="form-card" style="max-width:480px;margin:auto;">
+<div style="max-width:500px;margin:auto;padding:20px;">
+    
+    <form action="/checkout" method="POST">
 
-  <form action="/checkout" method="POST">
-      <label>Full Name</label>
-      <input type="text" name="name" required>
+        <label>Name</label>
+        <input type="text" name="customer_name" required style="width:100%;padding:8px;margin:5px 0;">
 
-      <label>Phone Number</label>
-      <input type="text" name="phone" required>
+        <label>Phone</label>
+        <input type="text" name="customer_phone" required style="width:100%;padding:8px;margin:5px 0;">
 
-      <label>Delivery Address</label>
-      <textarea name="address" required rows="3"></textarea>
+        <label>Address</label>
+        <textarea name="customer_address" required style="width:100%;padding:8px;margin:5px 0;"></textarea>
 
-      <h3 style="margin-top:12px;">Total: Rs <%= total %></h3>
+        <h3>Total: Rs <%= total %></h3>
 
-      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px;">
-          Place Order (Cash on Delivery)
-      </button>
-  </form>
-
-  <form action="/pay-esewa" method="POST" style="margin-top:10px;">
-      <input type="hidden" name="amount" value="<%= total %>">
-      <button type="submit" class="btn" style="width:100%;background:#10b981;color:#fff;">
-          Pay with eSewa
-      </button>
-  </form>
+        <button style="background:green;color:white;padding:10px 18px;border:none;border-radius:5px;margin-top:10px;cursor:pointer;">
+            Confirm Order
+        </button>
+    </form>
 
 </div>
 

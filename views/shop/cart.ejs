@@ -1,42 +1,38 @@
 <%- include('../partials/header') %>
 
-<h2 class="section-title" style="text-align:left;">Your Cart</h2>
+<div style="max-width:900px;margin:auto;padding:30px;">
+    <h2 style="font-size:26px;margin-bottom:20px;">🛍 Your Cart</h2>
 
-<% if (cart.length === 0) { %>
-  <p>No items in cart.</p>
-  <a href="/" class="btn btn-outline" style="margin-top:10px;">Continue Shopping</a>
-<% } else { %>
+    <% if(cart.length === 0) { %>
+        <p>Your cart is empty.</p>
+        <a href="/" style="padding:10px 20px;background:black;color:white;border-radius:6px;text-decoration:none;">
+            Back to Shop
+        </a>
+    <% } else { %>
 
-<table class="cart-table">
-  <tr>
-    <th>Product</th>
-    <th>Price</th>
-    <th>Qty</th>
-    <th>Subtotal</th>
-    <th></th>
-  </tr>
+    <table width="100%" cellpadding="12" style="border-collapse:collapse;">
+        <tr style="background:black;color:white;">
+            <th>Product</th>
+            <th>Price</th>
+        </tr>
 
-  <% cart.forEach(item => { %>
-  <tr>
-    <td><%= item.name %></td>
-    <td>Rs <%= item.price %></td>
-    <td><%= item.qty %></td>
-    <td>Rs <%= item.price * item.qty %></td>
-    <td>
-      <a href="/cart/remove/<%= item.id %>" class="btn btn-outline">Remove</a>
-    </td>
-  </tr>
-  <% }) %>
-</table>
+        <% cart.forEach(p => { %>
+            <tr>
+                <td><%= p.name %></td>
+                <td>Rs <%= p.price %></td>
+            </tr>
+        <% }) %>
+    </table>
 
-<div class="cart-summary">
-  <h3>Total: Rs <%= total %></h3>
-  <div>
-    <a href="/cart/clear" class="btn btn-outline" style="margin-right:8px;">Clear Cart</a>
-    <a href="/checkout" class="btn btn-primary">Go to Checkout</a>
-  </div>
+    <h3 style="margin-top:20px;font-size:22px;">Total: Rs <%= total %></h3>
+
+    <a href="/checkout"
+       style="display:inline-block;margin-top:15px;padding:12px 25px;background:green;color:white;
+              font-size:18px;border-radius:6px;text-decoration:none;">
+        Proceed to Checkout →
+    </a>
+
+    <% } %>
 </div>
-
-<% } %>
 
 <%- include('../partials/footer') %>

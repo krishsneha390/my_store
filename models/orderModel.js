@@ -22,7 +22,15 @@ const Order = {
         await pool.query(
             `INSERT INTO orders(customer_name, customer_phone, customer_address, items, total, payment_method, status)
              VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-            [customer_name, customer_phone, customer_address, items, total, payment_method, status]
+            [
+                customer_name,
+                customer_phone,
+                customer_address,
+                JSON.stringify(items),   // <-- required fix for JSON data
+                total,
+                payment_method,
+                status
+            ]
         );
     },
 
@@ -33,7 +41,13 @@ const Order = {
 
     updateStatus: async (id, status) => {
         await pool.query("UPDATE orders SET status=$1 WHERE id=$2", [status, id]);
+    },
+
+    // MUST ADD COMMA ABOVE BEFORE THIS ↓
+    delete: async (id) => {
+        await pool.query("DELETE FROM orders WHERE id=$1", [id]);
     }
+
 };
 
 export default Order;
