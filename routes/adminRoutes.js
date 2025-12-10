@@ -36,7 +36,7 @@ router.post("/login", async (req, res) => {
     const admin = await Admin.findByUser(username);
 
     if (!admin) return res.send("❌ User not found");
-    if (!await bcrypt.compare(password, admin.password)) 
+    if (!await bcrypt.compare(password, admin.password))
         return res.send("❌ Wrong password");
 
     req.session.admin = admin;
@@ -51,18 +51,44 @@ router.get("/logout", (req, res) => req.session.destroy(() => res.redirect("/adm
 router.get("/", auth, (req, res) => res.render("admin/dashboard"));
 
 /*----------------------------------------------------------
-   📂 CATEGORY MANAGEMENT
+   📂 CATEGORIES (FULL CRUD) — FINAL WORKING
 -----------------------------------------------------------*/
-router.get("/add-category", auth, (req, res) => res.render("admin/add-category"));
 
-router.post("/add-category", auth, async (req, res) => {
+// Show category list
+router.get("/categories", auth, async (req, res) => {
+    res.render("admin/categories", { categories: await Category.getAll() });
+});
+
+// Add category page
+router.get("/categories/add", auth, (req, res) => {
+    res.render("admin/add-category");
+});
+
+// Add category submit
+router.post("/categories/add", auth, async (req, res) => {
     await Category.create(req.body.name);
     res.redirect("/admin/categories");
 });
 
-router.get("/categories", auth, async (req, res) => {
-    res.render("admin/categories", { categories: await Category.getAll() });
+// Edit page
+router.get("/categories/edit/:id", auth, async (req, res) => {
+    res.render("admin/edit-category", {
+        category: await Category.getById(req.params.id)
+    });
 });
+
+// Update submit
+router.post("/categories/edit/:id", auth, async (req, res) => {
+    await Category.update(req.params.id, req.body.name);
+    res.redirect("/admin/categories");
+});
+
+// Delete category (FIXED)
+router.post("/categories/delete/:id", auth, async (req, res) => {
+    await Category.delete(req.params.id);
+    res.redirect("/admin/categories");
+});
+
 
 /*----------------------------------------------------------
    🛍 PRODUCT MANAGEMENT
@@ -81,7 +107,6 @@ router.get("/products", auth, async (req, res) => {
     res.render("admin/products", { products: await Product.getAll() });
 });
 
-/* ✏ EDIT SINGLE PRODUCT */
 router.get("/products/edit/:id", auth, async (req, res) => {
     res.render("admin/editProduct", {
         product: await Product.getById(req.params.id),
@@ -98,36 +123,22 @@ router.post("/products/edit/:id", auth, upload.single("image"), async (req, res)
 });
 
 /*----------------------------------------------------------
-   🔥 MASS EDIT + PAGINATION (MAIN FEATURE)
+   🔥 MASS EDIT + PAGINATION
 -----------------------------------------------------------*/
 router.get("/mass-edit", auth, async (req, res) => {
     const page = Number(req.query.page) || 1;
-    const limit = 30;                                     // items per page (change anytime)
+    const limit = 30;
     const offset = (page - 1) * limit;
 
     const { products, total } = await Product.getPaginated(limit, offset);
-    const categories = await Category.getAll();
     const totalPages = Math.ceil(total / limit);
 
-    res.render("admin/mass-edit", { products, categories, page, totalPages });
-});
-
-router.post("/mass-edit/update", auth, async (req,res)=> {
-    try{
-        for(let i=0;i<req.body.id.length;i++){
-            await Product.update(req.body.id[i], {
-                name: req.body.name[i],
-                price: req.body.price[i],
-                category_id: req.body.category_id[i],
-                description: req.body.description[i],
-                image: req.body.image[i]
-            });
-        }
-        res.redirect("/admin/mass-edit");
-    } catch(err){
-        console.log(err);
-        res.send("❌ Error updating products");
-    }
+    res.render("admin/mass-edit", {
+        products,
+        categories: await Category.getAll(),
+        page,
+        totalPages
+    });
 });
 
 /*----------------------------------------------------------
@@ -136,11 +147,10 @@ router.post("/mass-edit/update", auth, async (req,res)=> {
 router.get("/orders", auth, async (req, res) => {
     res.render("admin/orders", { orders: await Order.getAll() });
 });
-// DELETE ORDER
-router.post("/orders/delete/:id", async (req, res) => {
+
+router.post("/orders/delete/:id", auth, async (req, res) => {
     await Order.delete(req.params.id);
     res.redirect("/admin/orders");
 });
-
 
 export default router;

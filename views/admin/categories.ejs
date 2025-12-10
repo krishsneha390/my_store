@@ -1,19 +1,36 @@
 <%- include('../partials/header') %>
 
-<h3>Categories</h3>
-<a href="/admin/categories/add" class="btn btn-success mb-3">Add Category</a>
+<h2 style="margin:20px;">Categories</h2>
 
-<table class="table table-bordered">
-  <tr>
-    <th>ID</th><th>Name</th><th>Slug</th>
-  </tr>
-  <% categories.forEach(c => { %>
-  <tr>
+<a href="/admin/categories/add" 
+style="background:#007bff;color:#fff;padding:8px 12px;border-radius:4px;text-decoration:none;margin-left:20px;">
++ Add Category</a>
+
+<table border="1" width="80%" style="margin:20px;">
+<tr>
+    <th>ID</th><th>Name</th><th>Slug</th><th>Action</th>
+</tr>
+
+<% categories.forEach(c => { %>
+<tr>
     <td><%= c.id %></td>
     <td><%= c.name %></td>
     <td><%= c.slug %></td>
-  </tr>
-  <% }) %>
+
+    <td>
+        <a href="/admin/categories/edit/<%= c.id %>" 
+           style="padding:4px 10px;background:green;color:white;border-radius:4px;">
+           Edit
+        </a>
+
+        <form action="/admin/categories/delete/<%= c.id %>" method="POST" style="display:inline;">
+            <button style="padding:4px 10px;background:red;color:white;border-radius:4px;border:none;">
+                Delete
+            </button>
+        </form>
+    </td>
+</tr>
+<% }) %>
 </table>
 
 <%- include('../partials/footer') %>

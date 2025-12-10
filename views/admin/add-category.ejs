@@ -1,10 +1,17 @@
 <%- include('../partials/header') %>
 
-<h2>Add Category</h2>
+<h2 style="margin:20px;">Add Category</h2>
 
-<form action="/admin/add-category" method="POST" style="width:300px;margin:auto">
-    <input type="text" name="name" placeholder="Category Name" required>
-    <button type="submit">Add</button>
+<form action="/admin/categories/add" method="POST" style="margin:20px;">
+    <label>Category Name:</label><br>
+    <input type="text" name="name" required style="padding:6px;width:250px;">
+    <br><br>
+
+    <button style="background:#007bff;color:white;padding:8px 15px;border:none;border-radius:4px;">
+        Add Category
+    </button>
 </form>
+
+<a href="/admin/categories" style="margin-left:20px;text-decoration:none;">← Back</a>
 
 <%- include('../partials/footer') %>
