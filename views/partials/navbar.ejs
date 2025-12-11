@@ -7,12 +7,10 @@
         <a href="/">Shop</a>
         <a href="/cart">Cart</a>
 
-        <% if (session && session.user) { %>
+        <!-- ⭐ Admin always visible -->
+        <a href="/admin" style="margin-left:10px;">Admin</a>
 
-            <!-- ⭐ Show Admin only if user is admin -->
-            <% if (session.user.role === 'admin') { %>
-                <a href="/admin" style="font-weight:bold;">Admin</a>
-            <% } %>
+        <% if (session && session.user) { %>
 
             <!-- Logged in user greeting -->
             <a href="/account" style="margin-left:15px;">

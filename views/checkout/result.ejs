@@ -1,0 +1,16 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div style="max-width:500px;margin:auto;padding:20px;text-align:center;">
+    <h2>Delivery Cost Calculated</h2>
+
+    <p><b>Distance:</b> <%= distance %> km</p>
+    <p><b>Delivery Charge:</b> Rs <%= deliveryCost %></p>
+
+    <a href="/" 
+       style="margin-top:20px;display:inline-block;padding:10px 20px;background:black;color:white;border-radius:6px;">
+        Back to Home
+    </a>
+</div>
+
+<%- include('../partials/footer') %>

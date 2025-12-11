@@ -98,13 +98,36 @@ const SOURCE_LAT = 27.7021137;
 const SOURCE_LNG = 85.3120015;
 
 /*========== REAL DRIVING DISTANCE USING OSRM API ============*/
-async function getDrivingDistance(lat,lng){
+async function getDrivingDistance(lat, lng) {
     const url = `http://router.project-osrm.org/route/v1/driving/${SOURCE_LNG},${SOURCE_LAT};${lng},${lat}?overview=false`;
-    const data = await fetch(url).then(r=>r.json()).catch(()=>null);
 
-    if(!data || !data.routes) return null;
-    return Number((data.routes[0].distance/1000).toFixed(2)); 
+    let data = null;
+
+    try {
+        data = await fetch(url).then(r => r.json());
+    } catch (err) {
+        data = null;
+    }
+
+    // ⚠️ OSRM FAILED → fallback to Haversine
+    if (!data || !data.routes || !data.routes.length) {
+        const R = 6371;
+        const dLat = (lat - SOURCE_LAT) * Math.PI / 180;
+        const dLon = (lng - SOURCE_LNG) * Math.PI / 180;
+
+        const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(SOURCE_LAT * Math.PI / 180) *
+            Math.cos(lat * Math.PI / 180) *
+            Math.sin(dLon / 2) ** 2;
+
+        const haversineDistance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return Number(haversineDistance.toFixed(2));
+    }
+
+    // OSRM succeeded
+    return Number((data.routes[0].distance / 1000).toFixed(2));
 }
+
 
 /*====================== CHECKOUT PAGE ========================*/
 router.get("/checkout",(req,res)=>{

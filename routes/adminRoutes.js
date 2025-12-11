@@ -6,9 +6,11 @@ import Admin from "../models/adminModel.js";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
+import adminAuth from "../middleware/adminAuth.js";
+
 
 const router = express.Router();
-
+router.use(adminAuth)
 /*----------------------------------------------------------
    🔐 AUTH MIDDLEWARE
 -----------------------------------------------------------*/
