@@ -17,7 +17,10 @@
         <td>Action</td>
     </tr>
 
-    <% orders.forEach(order => { %>
+    <% orders.forEach(order => { 
+        const items = typeof order.items === "string" ? JSON.parse(order.items) : order.items;
+    %>
+
     <tr style="text-align:center;">
         <td><%= order.id %></td>
         <td><%= order.customer_name %></td>
@@ -25,9 +28,7 @@
         <td><%= order.customer_address || "N/A" %></td>
 
         <!-- Delivery Distance -->
-        <td>
-            <%= order.delivery_distance ? order.delivery_distance + " km" : "N/A" %>
-        </td>
+        <td><%= order.delivery_distance ? order.delivery_distance + " km" : "N/A" %></td>
 
         <!-- Delivery Fee -->
         <td>Rs <%= order.delivery_fee || 0 %></td>
@@ -48,10 +49,26 @@
         <!-- Total -->
         <td>Rs <%= order.total %></td>
 
-        <!-- Item Count -->
+        <!-- Items (open modal) -->
         <td>
-            <% let items = (typeof order.items === "string" ? JSON.parse(order.items) : order.items); %>
-            <%= items.length %> item(s)
+            <button onclick="openModal(<%= order.id %>)"
+                style="background:#28a745;color:white;padding:6px 10px;border:none;border-radius:5px;cursor:pointer;">
+                View (<%= items.length %>)
+            </button>
+
+            <!-- Hidden modal content -->
+            <div id="modal-data-<%= order.id %>" style="display:none;">
+                <h2 style="margin-bottom:10px;">Order #<%= order.id %> Items</h2>
+
+                <% items.forEach(i => { %>
+                    <div style="border-bottom:1px solid #ddd;padding:10px 0;">
+                        <b><%= i.name %></b><br>
+                        Qty: <%= i.qty %><br>
+                        Price: Rs <%= i.price %><br>
+                        Subtotal: Rs <%= i.qty * i.price %>
+                    </div>
+                <% }) %>
+            </div>
         </td>
 
         <!-- Date -->
@@ -66,7 +83,72 @@
             </form>
         </td>
     </tr>
+
     <% }) %>
 </table>
+
+<!-- 🌟 MODAL UI -->
+<style>
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-box {
+    width: 450px;
+    max-height: 80vh;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    overflow-y: auto;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    animation: showModal 0.25s ease-out;
+}
+
+@keyframes showModal {
+    from { transform: scale(0.8); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+.close-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    float: right;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+
+<!-- Modal Structure -->
+<div id="modal-overlay" class="modal-overlay">
+    <div class="modal-box">
+        <button class="close-btn" onclick="closeModal()">Close</button>
+        <div id="modal-content" style="margin-top:20px;"></div>
+    </div>
+</div>
+
+<!-- Modal Script -->
+<script>
+function openModal(id) {
+    const content = document.getElementById("modal-data-" + id).innerHTML;
+
+    document.getElementById("modal-content").innerHTML = content;
+    document.getElementById("modal-overlay").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("modal-overlay").style.display = "none";
+}
+</script>
 
 <%- include('../partials/footer') %>

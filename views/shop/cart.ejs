@@ -3,28 +3,61 @@
 <div style="max-width:900px;margin:auto;padding:30px;">
     <h2 style="font-size:26px;margin-bottom:20px;">🛍 Your Cart</h2>
 
-    <% if(cart.length === 0) { %>
+    <% if (cart.length === 0) { %>
+
         <p>Your cart is empty.</p>
         <a href="/" style="padding:10px 20px;background:black;color:white;border-radius:6px;text-decoration:none;">
             Back to Shop
         </a>
+
     <% } else { %>
 
-    <table width="100%" cellpadding="12" style="border-collapse:collapse;">
+    <table width="100%" cellpadding="12" style="border-collapse:collapse;text-align:center;">
         <tr style="background:black;color:white;">
             <th>Product</th>
             <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
+            <th>Actions</th>
         </tr>
 
-        <% cart.forEach(p => { %>
+        <% cart.forEach(item => { %>
             <tr>
-                <td><%= p.name %></td>
-                <td>Rs <%= p.price %></td>
+                <td><%= item.name %></td>
+
+                <td>Rs <%= item.price %></td>
+
+                <!-- Quantity controls -->
+                <td>
+                    <form action="/cart/decrease/<%= item.id %>" method="POST" style="display:inline;">
+                        <button style="padding:5px 10px;">-</button>
+                    </form>
+
+                    <span style="margin:0 10px;"><%= item.qty %></span>
+
+                    <form action="/cart/increase/<%= item.id %>" method="POST" style="display:inline;">
+                        <button style="padding:5px 10px;">+</button>
+                    </form>
+                </td>
+
+                <!-- Total per item -->
+                <td>Rs <%= item.price * item.qty %></td>
+
+                <!-- Delete button -->
+                <td>
+                    <form action="/cart/delete/<%= item.id %>" method="POST">
+                        <button style="background:red;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">
+                            Delete
+                        </button>
+                    </form>
+                </td>
             </tr>
         <% }) %>
     </table>
 
-    <h3 style="margin-top:20px;font-size:22px;">Total: Rs <%= total %></h3>
+    <h3 style="margin-top:20px;font-size:22px;">
+        Total: <b>Rs <%= total %></b>
+    </h3>
 
     <a href="/checkout"
        style="display:inline-block;margin-top:15px;padding:12px 25px;background:green;color:white;

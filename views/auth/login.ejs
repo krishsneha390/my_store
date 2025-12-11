@@ -1,0 +1,35 @@
+<%- include('../partials/header') %>
+
+<div style="max-width:400px;margin:auto;padding:20px;">
+    <h2 style="margin-bottom:15px;">Login</h2>
+
+    <!-- Google Login Button -->
+    <a href="/auth/google"
+       style="display:block;background:#4285F4;color:white;text-align:center;
+              padding:10px;border-radius:5px;text-decoration:none;font-weight:bold;">
+        Continue with Google
+    </a>
+
+    <!-- Divider -->
+    <div style="text-align:center;margin:15px 0;color:#777;">— OR —</div>
+
+    <!-- Normal Login Form -->
+    <form action="/login" method="POST">
+        <label>Email</label>
+        <input type="email" name="email" required style="width:100%;padding:8px;margin-bottom:10px;">
+
+        <label>Password</label>
+        <input type="password" name="password" required style="width:100%;padding:8px;margin-bottom:10px;">
+
+        <button style="margin-top:5px;width:100%;padding:10px;background:black;
+                       color:white;border:none;border-radius:5px;">
+            Login
+        </button>
+    </form>
+
+    <p style="margin-top:10px;">
+        Don't have an account? <a href="/signup">Signup</a>
+    </p>
+</div>
+
+<%- include('../partials/footer') %>
