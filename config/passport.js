@@ -3,7 +3,6 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/userModel.js";
 
 export default function configurePassport() {
-
   const isRender = process.env.RENDER === "true";
 
   passport.use(
@@ -12,18 +11,23 @@ export default function configurePassport() {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 
-        // 🟢 AUTO-SELECT CORRECT CALLBACK
+        // AUTO SWITCH BETWEEN LOCAL + RENDER URL
         callbackURL: isRender
-  ? process.env.GOOGLE_CALLBACK_URL_RENDER
-  : process.env.GOOGLE_CALLBACK_URL,
+          ? process.env.GOOGLE_CALLBACK_URL_RENDER
+          : process.env.GOOGLE_CALLBACK_URL,
 
-passReqToCallback: true
+        passReqToCallback: false, // you don’t need req for login
       },
 
       async (accessToken, refreshToken, profile, done) => {
         try {
           const email = profile.emails?.[0]?.value;
           const name = profile.displayName || "Google User";
+
+          if (!email) {
+            console.error("Google account has no email");
+            return done(null, false);
+          }
 
           let user = await User.findByEmail(email);
 
@@ -45,7 +49,11 @@ passReqToCallback: true
   });
 
   passport.deserializeUser(async (id, done) => {
-    const user = await User.findById(id);
-    done(null, user);
+    try {
+      const user = await User.findById(id);
+      done(null, user);
+    } catch (err) {
+      done(err, null);
+    }
   });
 }
