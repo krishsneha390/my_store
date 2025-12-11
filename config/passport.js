@@ -2,40 +2,50 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/userModel.js";
 
-export default function () {
-    passport.use(
-        new GoogleStrategy(
-            {
-                clientID: process.env.GOOGLE_CLIENT_ID,
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                callbackURL: process.env.GOOGLE_CALLBACK_URL_RENDER
-            },
-            async (accessToken, refreshToken, profile, done) => {
-                try {
-                    const email = profile.emails[0].value;
-                    const name = profile.displayName;
+export default function configurePassport() {
 
-                    let user = await User.findByEmail(email);
+  const isRender = process.env.RENDER === "true";
 
-                    if (!user) {
-                        user = await User.createGoogleUser(name, email);
-                    }
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 
-                    return done(null, user);
-                } catch (err) {
-                    console.error("Google Auth Error:", err);
-                    return done(err, null);
-                }
-            }
-        )
-    );
+        // 🟢 AUTO-SELECT CORRECT CALLBACK
+        callbackURL: isRender
+  ? process.env.GOOGLE_CALLBACK_URL_RENDER
+  : process.env.GOOGLE_CALLBACK_URL,
 
-    passport.serializeUser((user, done) => {
-        done(null, user.id);
-    });
+passReqToCallback: true
+      },
 
-    passport.deserializeUser(async (id, done) => {
-        const user = await User.findById(id);
-        done(null, user);
-    });
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          const email = profile.emails?.[0]?.value;
+          const name = profile.displayName || "Google User";
+
+          let user = await User.findByEmail(email);
+
+          if (!user) {
+            user = await User.create(name, email, null, "google");
+          }
+
+          return done(null, user);
+        } catch (err) {
+          console.error("Google Strategy Error:", err);
+          return done(err, null);
+        }
+      }
+    )
+  );
+
+  passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id, done) => {
+    const user = await User.findById(id);
+    done(null, user);
+  });
 }

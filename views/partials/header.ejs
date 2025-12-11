@@ -14,39 +14,29 @@
     </div>
 
     <div class="nav-links">
-
         <a href="/">Shop</a>
         <a href="/cart">Cart</a>
         <a href="/admin">Admin</a>
 
         <% if (session && session.user) { %>
-
-            <!-- Logged-in User -->
             <span style="margin-left:15px; font-weight:bold;">
                 Hi, <%= session.user.name %>!
             </span>
 
-            <!-- Logout -->
             <a href="/logout"
                style="margin-left:10px; color:#ff4d4d; font-weight:bold;">
                Logout
             </a>
-
         <% } else { %>
-
-            <!-- Login + Signup -->
             <a href="/login" style="margin-left:15px;">Login</a>
             <a href="/signup" style="margin-left:10px;">Signup</a>
 
-            <!-- ⭐ Google Login Button -->
             <a href="/auth/google"
                style="margin-left:10px; background:#4285F4; color:white;
                       padding:6px 12px; border-radius:5px; text-decoration:none;">
                 Continue with Google
             </a>
-
         <% } %>
-
     </div>
 </nav>
 
