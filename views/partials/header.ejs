@@ -8,36 +8,7 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="logo">
-        <a href="/" style="text-decoration:none; color:white;">MyStore</a>
-    </div>
-
-    <div class="nav-links">
-        <a href="/">Shop</a>
-        <a href="/cart">Cart</a>
-        <a href="/admin">Admin</a>
-
-        <% if (session && session.user) { %>
-            <span style="margin-left:15px; font-weight:bold;">
-                Hi, <%= session.user.name %>!
-            </span>
-
-            <a href="/logout"
-               style="margin-left:10px; color:#ff4d4d; font-weight:bold;">
-               Logout
-            </a>
-        <% } else { %>
-            <a href="/login" style="margin-left:15px;">Login</a>
-            <a href="/signup" style="margin-left:10px;">Signup</a>
-
-            <a href="/auth/google"
-               style="margin-left:10px; background:#4285F4; color:white;
-                      padding:6px 12px; border-radius:5px; text-decoration:none;">
-                Continue with Google
-            </a>
-        <% } %>
-    </div>
-</nav>
+<!-- FIXED INCLUDE -->
+<%- include("navbar") %>
 
 <div class="main-wrapper">
