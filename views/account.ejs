@@ -1,0 +1,21 @@
+<%- include("partials/navbar") %>
+<%- include("partials/navbar") %>
+
+<div class="container mt-5">
+  <h2>My Account</h2>
+  <hr>
+
+  <p><strong>Name:</strong> <%= user.name %></p>
+  <p><strong>Email:</strong> <%= user.email %></p>
+
+  <p>
+    <strong>Login Method:</strong>
+    <% if (user.password === null) { %>
+      Google Account
+    <% } else { %>
+      Email & Password
+    <% } %>
+  </p>
+
+  <a href="/logout" class="btn btn-danger">Logout</a>
+</div>

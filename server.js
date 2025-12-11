@@ -15,6 +15,7 @@ import authRoutes from "./routes/authRoutes.js";
 
 import "./config/db.js";
 import configurePassport from "./config/passport.js";
+import accountRoutes from "./routes/accountRoutes.js";
 
 const app = express();
 
@@ -71,6 +72,7 @@ app.use(excelAutoUpdate);
 
 app.use("/admin", resetImport);
 
+app.use("/", accountRoutes);
 /* ================= START SERVER ================= */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
