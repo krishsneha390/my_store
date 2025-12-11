@@ -1,0 +1,51 @@
+<!-- views/partials/navbar.ejs -->
+
+<nav class="navbar" style="padding:15px; background:black; color:white; display:flex; justify-content:space-between; align-items:center;">
+
+    <!-- Logo -->
+    <div class="logo">
+        <a href="/" style="text-decoration:none; color:white; font-size:22px; font-weight:bold;">
+            MyStore
+        </a>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="nav-links" style="display:flex; align-items:center; gap:15px;">
+
+        <a href="/" style="color:white; text-decoration:none;">Shop</a>
+        <a href="/cart" style="color:white; text-decoration:none;">Cart</a>
+        <a href="/admin" style="color:white; text-decoration:none;">Admin</a>
+
+        <% if (session && session.user) { %>
+
+            <!-- Logged-in User -->
+            <span style="margin-left:10px; font-weight:bold;">
+                Hi, <%= session.user.name %>!
+            </span>
+
+            <!-- Account Page -->
+            <a href="/account" style="color:#00eaff; text-decoration:none; margin-left:10px;">
+                My Account
+            </a>
+
+            <!-- Logout -->
+            <a href="/logout" style="margin-left:10px; color:#ff4d4d; font-weight:bold; text-decoration:none;">
+                Logout
+            </a>
+
+        <% } else { %>
+
+            <!-- Login + Signup -->
+            <a href="/login" style="color:white; text-decoration:none;">Login</a>
+            <a href="/signup" style="color:white; text-decoration:none;">Signup</a>
+
+            <!-- Google Login Button -->
+            <a href="/auth/google"
+               style="background:#4285F4; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">
+                Continue with Google
+            </a>
+
+        <% } %>
+
+    </div>
+</nav>

@@ -3,6 +3,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import User from "../models/userModel.js";
+import { requireLogin } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -31,6 +32,7 @@ router.post("/signup", async (req, res) => {
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
+      role: newUser.role
     };
 
     res.redirect("/");
@@ -68,6 +70,7 @@ router.post("/login", async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role
     };
 
     res.redirect("/");
@@ -80,7 +83,6 @@ router.post("/login", async (req, res) => {
 /* ========== LOGOUT ========== */
 router.get("/logout", (req, res, next) => {
   req.session.user = null;
-  // Passport logout (optional but nice)
   if (req.logout) {
     req.logout((err) => {
       if (err) return next(err);
@@ -102,14 +104,19 @@ router.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    // req.user is from passport (DB row)
     req.session.user = {
       id: req.user.id,
       name: req.user.name,
       email: req.user.email,
+      role: req.user.role
     };
     res.redirect("/");
   }
 );
+
+/* ========== USER ACCOUNT PAGE (REQUIRES LOGIN) ========== */
+router.get("/account", requireLogin, (req, res) => {
+  res.render("auth/account"); // create views/auth/account.ejs
+});
 
 export default router;
